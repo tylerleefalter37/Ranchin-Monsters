@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DISCSTONE 64: Monster Rancher & Code64 Shrine</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Retro 64-Bit & Tactical Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-deep: #0b1017;
+            --bg-slate: #131c27;
+            --bg-card: #1a2635;
+            --border-steel: #2e4158;
+            --shrine-gold: #f5b942;
+            --shrine-cyan: #00e1ff;
+            --shrine-emerald: #22e58b;
+            --text-light: #eef6ff;
+            --text-muted: #8ca3ba;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-light);
+            font-family: 'Chakra Petch', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pixel-font {
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        /* STRICT 18VH UPPER HUD */
+        .upper-hud {
+            height: 18vh;
+            max-height: 18vh;
+            min-height: 124px;
+            background: linear-gradient(180deg, #172331 0%, #0d151e 100%);
+            border-bottom: 2px solid var(--shrine-gold);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 4px 12px;
+            z-index: 30;
+            flex-shrink: 0;
+        }
+
+        /* LOWER 82VH WORKSPACE */
+        .lower-workspace {
+            height: 82vh;
+            max-height: 82vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8px 12px;
+            gap: 8px;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 10%, #192638 0%, #0b1017 100%);
+        }
+
+        /* PS1 / 64-Bit Beveled Cards */
+        .ps1-card {
+            background: linear-gradient(180deg, #1d2b3c 0%, #141e2b 100%);
+            border: 1px solid var(--border-steel);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 10px rgba(0,0,0,0.45);
+            border-radius: 6px;
+        }
+
+        .ps1-panel {
+            background-color: #0e1620;
+            border: 1px solid #26374b;
+            border-radius: 5px;
+        }
+
+        /* Buttons */
+        .btn-64 {
+            background: linear-gradient(180deg, #283a50 0%, #182433 100%);
+            border: 1px solid #3f5875;
+            color: var(--text-light);
+            border-radius: 5px;
+            font-weight: 700;
+            transition: all 0.1s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 0 #090e14;
+        }
+        .btn-64:hover:not(:disabled) {
+            border-color: var(--shrine-cyan);
+            color: var(--shrine-cyan);
+            background: linear-gradient(180deg, #2e4560 0%, #1d2c3f 100%);
+            box-shadow: 0 0 8px rgba(0, 225, 255, 0.35);
+        }
+        .btn-64:active:not(:disabled) {
+            transform: translateY(1px);
+            box-shadow: none;
+        }
+        .btn-64:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-gold {
+            background: linear-gradient(180deg, #f5b942 0%, #b87c14 100%);
+            border: 1px solid #ffe08a;
+            color: #11161d;
+            font-weight: 800;
+        }
+        .btn-gold:hover:not(:disabled) {
+            background: linear-gradient(180deg, #ffca5c 0%, #cf8d19 100%);
+            color: #000;
+            box-shadow: 0 0 12px rgba(245, 185, 66, 0.6);
+        }
+
+        .btn-cyan {
+            background: linear-gradient(180deg, #00e1ff 0%, #008eb3 100%);
+            border: 1px solid #80f0ff;
+            color: #06151c;
+            font-weight: 800;
+        }
+        .btn-cyan:hover:not(:disabled) {
+            background: linear-gradient(180deg, #47ebff 0%, #00a8d4 100%);
+            color: #000;
+            box-shadow: 0 0 12px rgba(0, 225, 255, 0.6);
+        }
+
+        .btn-emerald {
+            background: linear-gradient(180deg, #22e58b 0%, #109657 100%);
+            border: 1px solid #88f7c1;
+            color: #051c11;
+            font-weight: 800;
+        }
+        .btn-emerald:hover:not(:disabled) {
+            background: linear-gradient(180deg, #4cf0a4 0%, #15b368 100%);
+            color: #000;
+            box-shadow: 0 0 12px rgba(34, 229, 139, 0.55);
+        }
+
+        .tab-active {
+            background: linear-gradient(180deg, #f5b942 0%, #b57b16 100%) !important;
+            color: #0b1017 !important;
+            border-color: #fff2b2 !important;
+            box-shadow: 0 0 10px rgba(245, 185, 66, 0.5) !important;
+        }
+
+        .stat-pill {
+            background: #0e1620;
+            border: 1px solid #2e4158;
+            border-left: 3px solid var(--shrine-cyan);
+            border-radius: 4px;
+            padding: 1px 7px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        canvas.sprite-canvas {
+            image-rendering: pixelated;
+            background: radial-gradient(circle at 50% 60%, #1e324a 0%, #0b121b 100%);
+            border: 2px solid #38516e;
+            border-radius: 8px;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1017;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2e4158;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--shrine-cyan);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- =================================================================
+         STRICT 18VH UPPER HUD (3 COMPACT ROWS)
+         ================================================================= -->
+    <header class="upper-hud">
+        <!-- ROW 1: Title, Ranch Name, Date, Save/Load & God Mode -->
+        <div class="flex items-center justify-between gap-2 border-b border-[#2e4158] pb-1">
+            <div class="flex items-center gap-2 overflow-hidden">
+                <span class="w-6 h-6 rounded bg-[#f5b942] text-[#0b1017] flex items-center justify-center font-black text-xs shrink-0">💿</span>
+                <span class="font-extrabold text-xs sm:text-sm tracking-wider text-[#f5b942] truncate">DISCSTONE 64: MONSTER RANCHER</span>
+                <span id="uiRanchBadge" class="text-[10px] font-bold bg-[#0e1620] text-[#00e1ff] px-2 py-0.5 rounded border border-[#00e1ff]/50">Starlight Ranch (Lv.1)</span>
+                <span id="uiCalendar" class="hidden md:inline-block text-[11px] mono text-[#eef6ff] bg-[#0e1620] px-2 py-0.5 rounded border border-[#2e4158]">Yr 1000 • May • Wk 1</span>
+            </div>
+
+            <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="MR64.restWeek()" class="btn-64 btn-emerald px-2.5 py-0.5 text-[11px] flex items-center gap-1" title="Rest Active Monster for 1 Week (-Fatigue, +Passive Gold)">
+                    <i class="fa-solid fa-bed"></i> <span>Rest Wk</span>
+                </button>
+                <button onclick="MR64.saveGame()" class="btn-64 px-2 py-0.5 text-[11px]">💾 Save</button>
+                <button onclick="MR64.openSaveModal()" class="btn-64 px-2 py-0.5 text-[11px]">📂 Data</button>
+                <button onclick="MR64.toggleGodMode()" id="btnGodMode" class="btn-64 px-2 py-0.5 text-[11px] text-purple-300 border-purple-500/60">⚡ GOD: OFF</button>
+            </div>
+        </div>
+
+        <!-- ROW 2: PRE-CONDENSED ACTIVE MONSTER & RANCH VITALS BAR -->
+        <div class="flex items-center justify-between gap-1.5 overflow-x-auto py-0.5">
+            <div class="flex items-center gap-1.5">
+                <div class="stat-pill" title="Ranch Gold Balance">
+                    <span>🪙</span> <span class="text-[#8ca3ba] text-[10px]">GOLD</span>
+                    <b id="hudGold" class="mono text-[#f5b942]">3,500G</b>
+                </div>
+                <div class="stat-pill" title="Active Monster & Breed">
+                    <span>👾</span> <b id="hudActiveName" class="text-[#00e1ff]">Sakura</b>
+                    <span id="hudActiveBreed" class="text-[10px] text-[#8ca3ba]">(Mochi/Pixie)</span>
+                </div>
+                <div class="stat-pill" title="IMA Official Class Grade">
+                    <span>🏆</span> <span class="text-[10px] text-[#8ca3ba]">RANK</span>
+                    <b id="hudRank" class="mono text-[#22e58b]">E</b>
+                </div>
+                <div class="stat-pill" title="Monster Fatigue & Stress">
+                    <span>💧</span> <span class="text-[10px] text-[#8ca3ba]">FATIGUE</span>
+                    <b id="hudFatigue" class="mono text-emerald-300">0/100</b>
+                </div>
+                <div class="stat-pill" title="Loyalty (Fear + Spoil)">
+                    <span>❤️</span> <span class="text-[10px] text-[#8ca3ba]">LOYALTY</span>
+                    <b id="hudLoyalty" class="mono text-amber-300">65</b>
+                </div>
+                <div class="stat-pill" title="Monster Age / Lifespan Stage">
+                    <span>⏳</span> <b id="hudAge" class="mono text-[#eef6ff]">0y 0m</b>
+                </div>
+                <div class="stat-pill" title="Total Barn Monsters Stored">
+                    <span>🏠</span> <span class="text-[10px] text-[#8ca3ba]">BARN</span>
+                    <b id="hudBarnCount" class="mono text-[#00e1ff]">2/12</b>
+                </div>
+            </div>
+
+            <!-- Instant God Mode Cheat Bar -->
+            <div id="godDrawer" class="hidden flex items-center gap-1 bg-purple-950/90 text-purple-200 px-2 py-0.5 rounded border border-purple-400 text-[10px] shrink-0">
+                <span class="font-bold">⚡CHEATS:</span>
+                <button onclick="MR64.godAction('gold')" class="underline hover:text-white px-1">+50kG</button>
+                <button onclick="MR64.godAction('stats')" class="underline hover:text-white px-1">+200 All Stats</button>
+                <button onclick="MR64.godAction('rank')" class="underline hover:text-white px-1">Rank S</button>
+                <button onclick="MR64.godAction('items')" class="underline hover:text-white px-1">+All Relics</button>
+            </div>
+        </div>
+
+        <!-- ROW 3: 7 STREAMLINED TABS -->
+        <nav class="grid grid-cols-7 gap-1 pt-0.5">
+            <button onclick="MR64.switchTab('ranch')" id="tabBtn-ranch" class="btn-64 tab-active py-1 px-1 text-[10px] sm:text-xs flex items-center justify-center gap-1 truncate">
+                <span>🏋️</span> <span class="truncate">1. Ranch & Train</span>
+            </button>
+            <button onclick="MR64.switchTab('barn')" id="tabBtn-barn" class="btn-64 py-1 px-1 text-[10px] sm:text-xs flex items-center justify-center gap-1 truncate">
+                <span>🏠</span> <span class="truncate">2. Barn Roster</span>
+            </button>
+            <button onclick="MR64.switchTab('shrine')" id="tabBtn-shrine" class="btn-64 py-1 px-1 text-[10px] sm:text-xs flex items-center justify-center gap-1 truncate">
+                <span>💿</span> <span class="truncate">3. Code64 Shrine</span>
+            </button>
+            <button onclick="MR64.switchTab('fusion')" id="tabBtn-fusion" class="btn-64 py-1 px-1 text-[10px] sm:text-xs flex items-center justify-center gap-1 truncate">
+                <span>🧬</span> <span class="truncate">4. Fusion Lab</span>
+            </button>
+            <button onclick="MR64.switchTab('arena')" id="tabBtn-arena" class="btn-64 py-1 px-1 text-[10px] sm:text-xs flex items-center justify-center gap-1 truncate">
+                <span>🏟️</span> <span class="truncate">5. IMA Arena</span>
+            </button>
+            <button onclick="MR64.switchTab('market')" id="tabBtn-market" class="btn-64 py-1 px-1 text-[10px] sm:text-xs flex items-center justify-center gap-1 truncate">
+                <span>🛒</span> <span class="truncate">6. Shop & Relics</span>
+            </button>
+            <button onclick="MR64.switchTab('guide')" id="tabBtn-guide" class="btn-64 py-1 px-1 text-[10px] sm:text-xs flex items-center justify-center gap-1 truncate">
+                <span>📖</span> <span class="truncate">7. How to Play</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- =================================================================
+         82VH LOWER WORKSPACE
+         ================================================================= -->
+    <main class="lower-workspace">
+        <div class="flex-1 overflow-y-auto pr-1">
+
+            <!-- =========================================================
+                 TAB 1: RANCH & WEEKLY TRAINING + ERRANTY
+                 ========================================================= -->
+            <section id="tabPanel-ranch" class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+                <!-- Left 5 Cols: Animated Monster Portrait & 6 Core Stats -->
+                <div class="lg:col-span-5 ps1-card p-3 flex flex-col justify-between gap-2.5">
+                    <div class="flex items-center gap-3">
+                        <canvas id="ranchSpriteCanvas" width="140" height="140" class="sprite-canvas w-28 h-28 sm:w-32 sm:h-32 shrink-0"></canvas>
+                        <div class="flex-1 min-w-0 space-y-1">
+                            <div class="flex items-center justify-between gap-1">
+                                <input id="ranchNameInput" type="text" maxlength="16" onchange="MR64.renameActive(this.value)"
+                                    class="bg-[#0b1017] border border-[#38516e] rounded px-2 py-0.5 text-sm font-bold text-[#00e1ff] w-36 outline-none">
+                                <span id="ranchGradeBadge" class="text-xs font-extrabold px-2 py-0.5 rounded bg-[#f5b942] text-[#0b1017]">CLASS E</span>
+                            </div>
+                            <div id="ranchBreedSubtitle" class="text-xs text-[#8ca3ba] font-semibold">Mochi / Pixie • Gen 1</div>
+                            <div id="ranchLifeStage" class="text-[11px] text-[#22e58b]">Stage: Prime Growth • Guts Rate: 11/s</div>
+                            <div class="flex items-center gap-1 pt-1">
+                                <button onclick="MR64.copyActiveCode64()" class="btn-64 px-2 py-1 text-[10px] text-[#00e1ff] flex items-center gap-1">
+                                    <i class="fa-solid fa-share-nodes"></i> Copy Code64 DNA
+                                </button>
+                                <button onclick="MR64.switchTab('barn')" class="btn-64 px-2 py-1 text-[10px]">
+                                    🔄 Switch Monster
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6 Core Stats Bars (0 - 999) -->
+                    <div id="ranchStatsGrid" class="grid grid-cols-2 gap-2 text-xs">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Equipped Techniques Strip -->
+                    <div class="ps1-panel p-2 space-y-1">
+                        <div class="flex justify-between items-center text-[10px] text-[#8ca3ba]">
+                            <span class="font-bold text-[#f5b942]">⚡ LEARNED COMBAT TECHNIQUES</span>
+                            <span id="ranchTechCount">2 Techs</span>
+                        </div>
+                        <div id="ranchTechPills" class="flex flex-wrap gap-1 text-[10px]">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 7 Cols: Light Drills, Heavy Drills, Care & Errantry -->
+                <div class="lg:col-span-7 flex flex-col gap-2.5">
+                    <!-- Weekly Light & Heavy Drills -->
+                    <div class="ps1-card p-3 space-y-2">
+                        <div class="flex items-center justify-between border-b border-[#2e4158] pb-1.5">
+                            <div>
+                                <h2 class="font-extrabold text-xs sm:text-sm text-[#f5b942]">🏋️ WEEKLY RANCH TRAINING REGIMEN</h2>
+                                <p class="text-[11px] text-[#8ca3ba]">Light Drills raise 1 stat reliably. Heavy Drills cost 80G & raise 2 stats strongly.</p>
+                            </div>
+                            <button onclick="MR64.feedTreat()" class="btn-64 btn-cyan px-2.5 py-1 text-xs">🍮 Feed Cup Jelly (-25 Fatigue / 60G)</button>
+                        </div>
+
+                        <!-- 6 Light Drills -->
+                        <div class="text-[10px] font-bold text-[#00e1ff] uppercase">Light Drills (Free • +1 Week • +14 Fatigue)</div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-xs">
+                            <button onclick="MR64.runDrill('light', 'lif', null, 'Run & Endure')" class="btn-64 p-2 text-left">
+                                <div class="font-bold text-amber-300">🏃 Run & Endure</div>
+                                <div class="text-[10px] text-[#8ca3ba]">++LIF (Hit Points)</div>
+                            </button>
+                            <button onclick="MR64.runDrill('light', 'pow', null, 'Dominoes Knock')" class="btn-64 p-2 text-left">
+                                <div class="font-bold text-rose-300">🧱 Dominoes</div>
+                                <div class="text-[10px] text-[#8ca3ba]">++POW (Strength)</div>
+                            </button>
+                            <button onclick="MR64.runDrill('light', 'int', null, 'Shrine Study')" class="btn-64 p-2 text-left">
+                                <div class="font-bold text-emerald-300">📖 Study</div>
+                                <div class="text-[10px] text-[#8ca3ba]">++INT (Magic/Mind)</div>
+                            </button>
+                            <button onclick="MR64.runDrill('light', 'ski', null, 'Target Shoot')" class="btn-64 p-2 text-left">
+                                <div class="font-bold text-purple-300">🎯 Shoot</div>
+                                <div class="text-[10px] text-[#8ca3ba]">++SKI (Accuracy)</div>
+                            </button>
+                            <button onclick="MR64.runDrill('light', 'spd', null, 'Log Dodge')" class="btn-64 p-2 text-left">
+                                <div class="font-bold text-sky-300">💨 Dodge</div>
+                                <div class="text-[10px] text-[#8ca3ba]">++SPD (Evasion)</div>
+                            </button>
+                            <button onclick="MR64.runDrill('light', 'def', null, 'Boulder Guard')" class="btn-64 p-2 text-left">
+                                <div class="font-bold text-orange-300">🛡️ Endure</div>
+                                <div class="text-[10px] text-[#8ca3ba]">++DEF (Armor)</div>
+                            </button>
+                        </div>
+
+                        <!-- 4 Heavy Drills -->
+                        <div class="text-[10px] font-bold text-[#f5b942] uppercase pt-1">Heavy Master Drills (-80G • +1 Week • +24 Fatigue)</div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs">
+                            <button onclick="MR64.runDrill('heavy', 'pow', 'lif', 'Cart Pull')" class="btn-64 p-2 text-left border-amber-500/40">
+                                <div class="font-bold text-rose-300">🪨 Heavy Pull</div>
+                                <div class="text-[10px] text-[#8ca3ba]">+++POW, +LIF</div>
+                            </button>
+                            <button onclick="MR64.runDrill('heavy', 'int', 'ski', 'Meditate')" class="btn-64 p-2 text-left border-amber-500/40">
+                                <div class="font-bold text-emerald-300">🔮 Meditate</div>
+                                <div class="text-[10px] text-[#8ca3ba]">+++INT, +SKI</div>
+                            </button>
+                            <button onclick="MR64.runDrill('heavy', 'spd', 'ski', 'Fencing')" class="btn-64 p-2 text-left border-amber-500/40">
+                                <div class="font-bold text-sky-300">⚔️ Fencing</div>
+                                <div class="text-[10px] text-[#8ca3ba]">+++SKI, +SPD</div>
+                            </button>
+                            <button onclick="MR64.runDrill('heavy', 'def', 'lif', 'Waterfall Swim')" class="btn-64 p-2 text-left border-amber-500/40">
+                                <div class="font-bold text-orange-300">🌊 Swim</div>
+                                <div class="text-[10px] text-[#8ca3ba]">+++DEF, +LIF</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Errantry Expeditions (Learn New Techs & Find Fusion Items) -->
+                    <div class="ps1-card p-3 space-y-2 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-[#2e4158] pb-1">
+                                <h3 class="font-bold text-xs text-[#00e1ff]">🗺️ 4-WEEK ERRANTY EXPEDITIONS (LEARN NEW TECHS & RELICS)</h3>
+                                <span class="text-[10px] text-[#8ca3ba]">Cost: 250G • Unlocks High-Tier Techs</span>
+                            </div>
+                            <p class="text-[11px] text-[#8ca3ba] mt-1">
+                                Send your active monster to ancient training grounds to master new Range Techniques and unearth Secret Fusion Seasonings!
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs">
+                            <button onclick="MR64.runErrantry('Kawrea Volcano', 'pow')" class="btn-64 p-2 text-left">
+                                <div class="font-bold text-rose-300">🌋 Kawrea Volcano</div>
+                                <div class="text-[10px] text-[#8ca3ba]">Heavy POW Techs</div>
+                            </button>
+                            <button onclick="MR64.runErrantry('Torble Sea', 'int')" class="btn-64 p-2 text-left">
+                                <div class="font-bold text-emerald-300">🌊 Torble Sea</div>
+                                <div class="text-[10px] text-[#8ca3ba]">Long-Range INT Techs</div>
+                            </button>
+                            <button onclick="MR64.runErrantry('Mandy Desert', 'ski')" class="btn-64 p-2 text-left">
+                                <div class="font-bold text-amber-300">🏜️ Mandy Desert</div>
+                                <div class="text-[10px] text-[#8ca3ba]">Crit SKI/SPD Techs</div>
+                            </button>
+                            <button onclick="MR64.runErrantry('Parepare Jungle', 'def')" class="btn-64 p-2 text-left">
+                                <div class="font-bold text-sky-300">🌴 Parepare</div>
+                                <div class="text-[10px] text-[#8ca3ba]">Relic & All-Round</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 TAB 2: UNIFIED BARN ROSTER (LIKE FALCONRY MEWS)
+                 ========================================================= -->
+            <section id="tabPanel-barn" class="hidden space-y-3">
+                <div class="ps1-card p-3 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h2 class="font-extrabold text-xs sm:text-sm text-[#f5b942]">🏠 UNIFIED BARN & FREEZER ROSTER</h2>
+                        <p class="text-[11px] text-[#8ca3ba]">All your summoned and fused creatures live here in one place. Click any monster to make it Active, export its Code64 DNA, or send to the Fusion Lab!</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs">
+                        <button onclick="MR64.switchTab('shrine')" class="btn-64 btn-cyan px-3 py-1.5">💿 Summon More at Shrine</button>
+                        <button onclick="MR64.switchTab('fusion')" class="btn-64 btn-gold px-3 py-1.5">🧬 Open Fusion Lab</button>
+                    </div>
+                </div>
+
+                <!-- Grid of All Stored Monsters with Live Mini Canvas Portraits -->
+                <div id="barnRosterGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 TAB 3: CODE64 SHRINE (SEED SUMMON + DNA TRADE CODE)
+                 ========================================================= -->
+            <section id="tabPanel-shrine" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-3">
+                <!-- Left 6 Cols: CD / Title Seed Summoning & Trade Code Importer -->
+                <div class="lg:col-span-6 ps1-card p-3.5 space-y-3">
+                    <div class="border-b border-[#2e4158] pb-2">
+                        <h2 class="font-extrabold text-sm text-[#f5b942] flex items-center gap-2">
+                            <span>💿</span> ANCIENT DISCSTONE & CODE64 SHRINE
+                        </h2>
+                        <p class="text-[11px] text-[#8ca3ba] mt-0.5">
+                            Summon monsters two ways: enter ANY CD title / secret phrase, OR paste a <b class="text-[#00e1ff]">MR64-...</b> Trade Code to pull an exact creature with all its stats & techs!
+                        </p>
+                    </div>
+
+                    <!-- Mode 1: CD / Word Seed Summoner -->
+                    <div class="ps1-panel p-3 space-y-2">
+                        <label class="block text-xs font-bold text-[#f5b942]">1. 💿 INSERT CD / ALBUM / SECRET PHRASE SEED:</label>
+                        <div class="flex gap-1.5">
+                            <input id="shrineSeedInput" type="text" placeholder="Type any word (e.g. EXCALIBUR, CYBERPUNK, 1999)..."
+                                class="flex-1 bg-[#090e14] border border-[#38516e] rounded px-2.5 py-1.5 text-xs font-bold text-[#eef6ff] outline-none">
+                            <button onclick="MR64.summonFromSeed()" class="btn-64 btn-gold px-3 py-1.5 text-xs">🔮 Read Disc</button>
+                        </div>
+                        <div class="flex flex-wrap gap-1 pt-1 text-[10px]">
+                            <span class="text-[#8ca3ba]">Famous Discs:</span>
+                            <button onclick="MR64.quickSeed('BAHAMUT ZERO')" class="btn-64 px-2 py-0.5 text-amber-300">BAHAMUT ZERO</button>
+                            <button onclick="MR64.quickSeed('OMEGA CORE 64')" class="btn-64 px-2 py-0.5 text-cyan-300">OMEGA CORE 64</button>
+                            <button onclick="MR64.quickSeed('VALKYRIE PROFILE')" class="btn-64 px-2 py-0.5 text-pink-300">VALKYRIE PROFILE</button>
+                            <button onclick="MR64.quickSeed('IRON GOLEM XL')" class="btn-64 px-2 py-0.5 text-emerald-300">IRON GOLEM XL</button>
+                            <button onclick="MR64.randomSeedSummon()" class="btn-64 btn-cyan px-2 py-0.5">🎲 Mystery Disc</button>
+                        </div>
+                    </div>
+
+                    <!-- Mode 2: Code64 Trade DNA String Decoder -->
+                    <div class="ps1-panel p-3 space-y-2 border-[#00e1ff]/50">
+                        <label class="block text-xs font-bold text-[#00e1ff]">2. 🧬 CODE64 TRADE DNA TELEPORTER (IMPORT / SHARE):</label>
+                        <p class="text-[11px] text-[#8ca3ba]">
+                            Paste any <code class="text-[#00e1ff]">MR64-...</code> Trade Code below to reconstruct that exact monster directly into your Barn!
+                        </p>
+                        <div class="flex gap-1.5">
+                            <input id="shrineCode64Input" type="text" placeholder="Paste MR64-... trade code here..."
+                                class="flex-1 bg-[#090e14] border border-[#00e1ff]/60 rounded px-2.5 py-1.5 text-xs mono text-[#00e1ff] outline-none">
+                            <button onclick="MR64.importCode64()" class="btn-64 btn-cyan px-3 py-1.5 text-xs">⚡ Summon Code64</button>
+                        </div>
+                        <div class="flex flex-wrap gap-1 pt-1 text-[10px]">
+                            <span class="text-[#8ca3ba]">Sample Promo Trade Codes:</span>
+                            <button onclick="MR64.loadPromoCode(0)" class="btn-64 px-2 py-0.5 text-[#00e1ff]">🎁 Crimson Wyvern</button>
+                            <button onclick="MR64.loadPromoCode(1)" class="btn-64 px-2 py-0.5 text-[#22e58b]">🎁 Cyber Tiger</button>
+                            <button onclick="MR64.loadPromoCode(2)" class="btn-64 px-2 py-0.5 text-[#f5b942]">🎁 Astral Durahan</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 6 Cols: Shrine Altar Summoning Preview & Confirmation -->
+                <div class="lg:col-span-6 ps1-card p-3.5 flex flex-col justify-between items-center text-center gap-3">
+                    <div class="w-full border-b border-[#2e4158] pb-2 flex items-center justify-between">
+                        <span class="font-extrabold text-xs text-[#00e1ff]">✨ SHRINE ALTAR MANIFESTATION</span>
+                        <span id="shrineOriginLabel" class="text-[11px] mono text-[#f5b942]">Awaiting Disc or Code64...</span>
+                    </div>
+
+                    <canvas id="shrinePreviewCanvas" width="160" height="160" class="sprite-canvas w-36 h-36 shadow-2xl"></canvas>
+
+                    <div id="shrinePreviewInfo" class="w-full ps1-panel p-3 text-xs space-y-1.5">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div class="w-full flex gap-2">
+                        <button onclick="MR64.keepShrineMonster()" id="btnClaimShrine" class="btn-64 btn-emerald flex-1 py-2.5 text-xs font-extrabold">
+                            🏠 Send Summoned Monster to Barn Roster
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 TAB 4: FUSION LAB (COMBINING + SECRET SEASONINGS)
+                 ========================================================= -->
+            <section id="tabPanel-fusion" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-3">
+                <!-- Left 6 Cols: Parent A + Parent B + Secret Seasoning Selector -->
+                <div class="lg:col-span-6 ps1-card p-3.5 space-y-3">
+                    <div class="border-b border-[#2e4158] pb-2">
+                        <h2 class="font-extrabold text-sm text-[#f5b942]">🧬 MONSTER COMBINING & FUSION LAB</h2>
+                        <p class="text-[11px] text-[#8ca3ba]">
+                            Combine two monsters from your Barn Roster into a stronger next-generation offspring that inherits parent stats, sub-breed aesthetics, and learned techniques!
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                        <div class="ps1-panel p-2.5 space-y-1.5">
+                            <label class="font-bold text-[#00e1ff] block">1. Base Parent (Main Body):</label>
+                            <select id="fusionParentA" onchange="MR64.updateFusionPreview()" class="w-full bg-[#090e14] border border-[#38516e] rounded p-1.5 font-bold text-[#eef6ff] outline-none"></select>
+                            <div id="fusionParentAStats" class="text-[11px] text-[#8ca3ba] mono"></div>
+                        </div>
+
+                        <div class="ps1-panel p-2.5 space-y-1.5">
+                            <label class="font-bold text-[#f5b942] block">2. Sub Parent (Color & Aura):</label>
+                            <select id="fusionParentB" onchange="MR64.updateFusionPreview()" class="w-full bg-[#090e14] border border-[#38516e] rounded p-1.5 font-bold text-[#eef6ff] outline-none"></select>
+                            <div id="fusionParentBStats" class="text-[11px] text-[#8ca3ba] mono"></div>
+                        </div>
+                    </div>
+
+                    <!-- Secret Seasoning Catalyst -->
+                    <div class="ps1-panel p-2.5 space-y-1.5 text-xs">
+                        <label class="font-bold text-[#22e58b] block">3. Optional Secret Fusion Catalyst / Relic:</label>
+                        <select id="fusionCatalyst" onchange="MR64.updateFusionPreview()" class="w-full bg-[#090e14] border border-[#38516e] rounded p-1.5 font-bold text-[#22e58b] outline-none">
+                            <!-- Populated by JS -->
+                        </select>
+                        <p class="text-[10px] text-[#8ca3ba]">
+                            💡 Catalysts boost newborn stats or mutate the offspring into rare Dragon/Mecha bloodlines!
+                        </p>
+                    </div>
+
+                    <button onclick="MR64.executeFusion()" id="btnExecuteFusion" class="btn-64 btn-gold w-full py-2.5 text-xs font-extrabold">
+                        ⚡ COMBINE PARENTS & BIRTH NEW MONSTER
+                    </button>
+                </div>
+
+                <!-- Right 6 Cols: Predicted Offspring Canvas, Compatibility & Inherited Techs -->
+                <div class="lg:col-span-6 ps1-card p-3.5 flex flex-col justify-between items-center text-center gap-2.5">
+                    <div class="w-full flex items-center justify-between border-b border-[#2e4158] pb-2">
+                        <span class="font-extrabold text-xs text-[#22e58b]">🔮 PREDICTED FUSION OFFSPRING</span>
+                        <span id="fusionCompatBadge" class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500">Compatibility: GREAT!</span>
+                    </div>
+
+                    <canvas id="fusionPreviewCanvas" width="150" height="150" class="sprite-canvas w-36 h-36"></canvas>
+
+                    <div id="fusionPreviewDetails" class="w-full ps1-panel p-3 text-xs text-left space-y-1.5">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 TAB 5: IMA ARENA TOURNAMENTS & REAL-TIME GUTS COMBAT
+                 ========================================================= -->
+            <section id="tabPanel-arena" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-3">
+                <!-- Left 5 Cols: Tournament Ladder & Prize Purse -->
+                <div class="lg:col-span-5 ps1-card p-3 space-y-2.5 flex flex-col justify-between">
+                    <div class="space-y-2">
+                        <div class="border-b border-[#2e4158] pb-2">
+                            <h2 class="font-extrabold text-xs sm:text-sm text-[#f5b942]">🏟️ IMA OFFICIAL TOURNAMENT CIRCUIT</h2>
+                            <p class="text-[11px] text-[#8ca3ba]">Win tournaments to promote your monster from Class E → D → C → B → A → S (Legend) and earn huge Gold purses & Fusion Relics!</p>
+                        </div>
+
+                        <div id="tournamentLadderList" class="space-y-1.5 text-xs max-h-[44vh] overflow-y-auto pr-1">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <div class="ps1-panel p-2 text-[11px] text-[#8ca3ba]">
+                        💡 <b>Combat Tip:</b> Build Guts to increase Hit % and Damage, or spend Guts on Near / Mid / Far Range Techniques!
+                    </div>
+                </div>
+
+                <!-- Right 7 Cols: Interactive Dual-Canvas Guts Arena -->
+                <div class="lg:col-span-7 ps1-card p-3 flex flex-col justify-between gap-2">
+                    <!-- Top Match Header: HP Bars & Timer -->
+                    <div class="ps1-panel p-2.5 space-y-2">
+                        <div class="flex items-center justify-between gap-2 text-xs">
+                            <div class="flex-1">
+                                <div class="flex justify-between font-bold text-[#00e1ff]">
+                                    <span id="arenaPlayerName">Sakura</span>
+                                    <span id="arenaPlayerHpText" class="mono">180/180</span>
+                                </div>
+                                <div class="w-full h-2.5 bg-black rounded-full overflow-hidden border border-[#2e4158] mt-0.5">
+                                    <div id="arenaPlayerHpBar" class="h-full bg-emerald-400 transition-all" style="width:100%"></div>
+                                </div>
+                            </div>
+
+                            <div class="px-2 text-center shrink-0">
+                                <div class="text-[9px] text-[#8ca3ba]">TIME</div>
+                                <div id="arenaTimer" class="pixel-font text-sm text-[#f5b942]">60</div>
+                            </div>
+
+                            <div class="flex-1 text-right">
+                                <div class="flex justify-between font-bold text-rose-400">
+                                    <span id="arenaEnemyHpText" class="mono">160/160</span>
+                                    <span id="arenaEnemyName">Iron Golem</span>
+                                </div>
+                                <div class="w-full h-2.5 bg-black rounded-full overflow-hidden border border-[#2e4158] mt-0.5">
+                                    <div id="arenaEnemyHpBar" class="h-full bg-rose-500 transition-all" style="width:100%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dual Sprite Stage + Range Indicator -->
+                        <div class="flex items-center justify-around py-2 bg-[#080d13] rounded border border-[#26374b] relative">
+                            <div class="text-center">
+                                <canvas id="arenaPlayerCanvas" width="110" height="110" class="sprite-canvas w-24 h-24"></canvas>
+                                <div class="mt-1 mono text-xs font-bold text-[#00e1ff]">GUTS: <span id="arenaPlayerGuts" class="text-amber-300">50</span></div>
+                            </div>
+
+                            <div class="text-center space-y-1">
+                                <div class="text-[10px] text-[#8ca3ba] uppercase font-bold">Range Distance</div>
+                                <div id="arenaRangeBadge" class="px-3 py-1 rounded bg-[#1d2b3c] border border-[#00e1ff] text-xs font-extrabold text-[#00e1ff]">
+                                    ↔️ MID RANGE
+                                </div>
+                                <div class="flex gap-1 justify-center pt-1">
+                                    <button onclick="MR64.shiftRange(-1)" class="btn-64 px-2 py-0.5 text-[10px]">⬅️ Step In</button>
+                                    <button onclick="MR64.shiftRange(1)" class="btn-64 px-2 py-0.5 text-[10px]">Step Back ➡️</button>
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <canvas id="arenaEnemyCanvas" width="110" height="110" class="sprite-canvas w-24 h-24"></canvas>
+                                <div class="mt-1 mono text-xs font-bold text-rose-400">GUTS: <span id="arenaEnemyGuts" class="text-amber-300">50</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Combat Action & Technique Buttons -->
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span id="arenaStatusBanner" class="font-bold text-[#f5b942]">Select a Tournament on the left to enter the Arena!</span>
+                            <button onclick="MR64.autoResolveMatch()" class="btn-64 px-2.5 py-0.5 text-[10px] text-emerald-300">⚡ Quick-Sim Match</button>
+                        </div>
+                        <div id="arenaTechButtons" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-xs">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 TAB 6: SHOP, RELICS & RANCH UPGRADES
+                 ========================================================= -->
+            <section id="tabPanel-market" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-3">
+                <!-- Left 7 Cols: Item Shop (Lifespan Peaches, Fatigue Treats, Fusion Relics) -->
+                <div class="lg:col-span-7 ps1-card p-3 space-y-2.5">
+                    <div class="border-b border-[#2e4158] pb-2 flex items-center justify-between">
+                        <div>
+                            <h2 class="font-extrabold text-xs sm:text-sm text-[#f5b942]">🛒 BAZAAR: VITAMINS, GOLDEN PEACHES & FUSION RELICS</h2>
+                            <p class="text-[11px] text-[#8ca3ba]">Spend Tournament Gold on stat-boosting vitamins, lifespan-extending Golden Peaches, and Secret Fusion Catalysts.</p>
+                        </div>
+                    </div>
+
+                    <div id="marketItemsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs max-h-[50vh] overflow-y-auto pr-1">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Right 5 Cols: Ranch Upgrades & Owned Relics -->
+                <div class="lg:col-span-5 flex flex-col gap-2.5">
+                    <div class="ps1-card p-3 space-y-2">
+                        <h3 class="font-bold text-xs text-[#00e1ff] border-b border-[#2e4158] pb-1.5">🏡 RANCH EXPANSIONS & PASSIVE SPONSORS</h3>
+                        <p class="text-[11px] text-[#8ca3ba]">
+                            Upgrade your Ranch facilities to expand Barn capacity, reduce weekly drill fatigue, and earn passive IMA Sponsor Gold every week!
+                        </p>
+                        <div id="ranchUpgradesList" class="space-y-1.5 text-xs">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <div class="ps1-card p-3 space-y-2 flex-1">
+                        <h3 class="font-bold text-xs text-[#22e58b] border-b border-[#2e4158] pb-1.5">🎒 OWNED FUSION RELICS & CATALYSTS</h3>
+                        <div id="ownedRelicsList" class="text-xs text-[#8ca3ba] space-y-1">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =========================================================
+                 TAB 7: HOW TO PLAY GUIDE
+                 ========================================================= -->
+            <section id="tabPanel-guide" class="hidden space-y-3 text-xs">
+                <div class="ps1-card p-3.5 border-l-4 border-l-[#f5b942]">
+                    <h2 class="font-extrabold text-sm text-[#f5b942]">📖 HOW TO PLAY: DISCSTONE 64 — MONSTER RANCHER & CODE64 SHRINE</h2>
+                    <p class="text-[#8ca3ba] mt-1 leading-relaxed">
+                        Welcome to <b>Discstone 64</b>! Raise legendary creatures, decode secret CD phrases or shareable <b>Code64 DNA strings</b> at the Shrine, fuse hybrids in the Combining Lab, and battle to Class S in the IMA Arena.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    <div class="ps1-card p-3 space-y-1">
+                        <div class="font-bold text-[#00e1ff]">1. 💿 Code64 Shrine & Trade Codes</div>
+                        <p class="text-[#8ca3ba] leading-relaxed">
+                            In the <b>Code64 Shrine</b> tab, type ANY word, album, or phrase to deterministically summon a monster! Furthermore, every monster has a unique <code>MR64-...</code> DNA code—copy it from your Barn and paste it into the Shrine to trade or clone exact monsters!
+                        </p>
+                    </div>
+                    <div class="ps1-card p-3 space-y-1">
+                        <div class="font-bold text-[#f5b942]">2. 🏠 Unified Barn Roster</div>
+                        <p class="text-[#8ca3ba] leading-relaxed">
+                            Just like the Mews in the Falconry game, all your monsters are stored in the <b>Barn Roster</b> tab with live animated canvas sprites. Click any monster to make it Active, export its Code64 string, or keep it safe for Fusion.
+                        </p>
+                    </div>
+                    <div class="ps1-card p-3 space-y-1">
+                        <div class="font-bold text-[#22e58b]">3. 🧬 Monster Combining (Fusion)</div>
+                        <p class="text-[#8ca3ba] leading-relaxed">
+                            In the <b>Fusion Lab</b>, select Parent A (Main Body) and Parent B (Color/Aura/Markings) plus an optional Secret Relic Catalyst. High parent stats grant huge bonus starting stats and transfer learned techniques to the newborn!
+                        </p>
+                    </div>
+                    <div class="ps1-card p-3 space-y-1">
+                        <div class="font-bold text-rose-300">4. 🏋️ Weekly Training & Errantry</div>
+                        <p class="text-[#8ca3ba] leading-relaxed">
+                            Train your active monster in 6 core stats (<b>LIF, POW, INT, SKI, SPD, DEF</b>). Watch your Fatigue meter—use <b>Rest Wk</b> or feed <b>Cup Jelly / Nuts Oil</b> so your monster stays healthy. Send it on Errantry to learn powerful new Range Techniques!
+                        </p>
+                    </div>
+                    <div class="ps1-card p-3 space-y-1">
+                        <div class="font-bold text-purple-300">5. 🏟️ Real-Time Guts Arena Combat</div>
+                        <p class="text-[#8ca3ba] leading-relaxed">
+                            In the <b>IMA Arena</b>, shift between Near, Mid, and Far Range. Your Guts regenerate in real time; higher Guts boost your Hit/Dodge chance and let you unleash devastating signature Techniques!
+                        </p>
+                    </div>
+                    <div class="ps1-card p-3 space-y-1">
+                        <div class="font-bold text-amber-300">6. 🛒 Golden Peaches & ⚡ God Mode</div>
+                        <p class="text-[#8ca3ba] leading-relaxed">
+                            Visit the <b>Shop</b> for Golden Peaches (youth restoration), Stat Vitamins, and Ranch Upgrades. Want pure sandbox fun? Toggle <b>⚡ GOD: ON</b> in the top bar for free shopping, +200 All Stats, and S-Rank promotion!
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- BOTTOM SLIM CHRONICLE LOG -->
+        <footer class="ps1-card px-3 py-1.5 bg-[#090e14] border border-[#f5b942]/50 shrink-0">
+            <div class="flex items-center justify-between text-[10px] text-[#f5b942] font-bold border-b border-[#1f2e40] pb-0.5 mb-1">
+                <span>📜 RANCHER'S CHRONICLE & SHRINE TELEMETRY</span>
+                <span id="footerStatusText" class="mono text-[#00e1ff]">IMA Registry Online</span>
+            </div>
+            <div id="chronicleLog" class="h-11 overflow-y-auto space-y-0.5 text-[11px] mono text-[#d0e2f5]">
+                <div>> Welcome to DISCSTONE 64! Train your starter monster, summon creatures from words or Code64 strings at the Shrine, or fuse hybrids!</div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- SAVE / DATA MODAL -->
+    <div id="saveModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="ps1-card max-w-md w-full p-4 space-y-3 border-2 border-[#00e1ff]">
+            <div class="flex items-center justify-between border-b border-[#2e4158] pb-2">
+                <h3 class="font-extrabold text-sm text-[#f5b942]">💾 RANCH MEMORY CARD MANAGER</h3>
+                <button onclick="MR64.closeSaveModal()" class="text-xs font-bold text-[#8ca3ba] hover:text-white">✕ Close</button>
+            </div>
+            <div class="space-y-2 text-xs">
+                <div class="flex gap-2">
+                    <button onclick="MR64.saveGame(); MR64.closeSaveModal()" class="btn-64 btn-emerald flex-1 py-2">💾 Save Ranch</button>
+                    <button onclick="MR64.loadGame(); MR64.closeSaveModal()" class="btn-64 flex-1 py-2">📂 Load Ranch</button>
+                </div>
+                <label class="block text-[#8ca3ba] font-semibold pt-2">Export / Import Full Ranch Save String:</label>
+                <input id="fullSaveInput" type="text" placeholder="Paste full ranch save code..." class="w-full ps1-panel p-2 mono text-xs text-[#00e1ff] outline-none">
+                <div class="flex gap-2">
+                    <button onclick="MR64.exportFullSave()" class="btn-64 btn-cyan flex-1 py-1.5">📋 Copy Save String</button>
+                    <button onclick="MR64.importFullSave()" class="btn-64 btn-gold flex-1 py-1.5">📥 Import Save String</button>
+                </div>
+                <button onclick="MR64.resetRanch()" class="btn-64 w-full py-1.5 text-rose-400 border-rose-800 mt-2">🔄 Reset Ranch to Year 1000</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================================================================
+         COMPLETE DISCSTONE 64 ENGINE & PROCEDURAL SPRITE RENDERER
+         ================================================================= -->
+    <script>
+        /* ==============================================================
+           1. 10 MAIN BREEDS & SUB-BREED PALETTES (100 COMBINATIONS)
+           ============================================================== */
+        const BREEDS = {
+            Mochi: {
+                name: "Mochi", gutsRate: 13,
+                base: { lif: 130, pow: 110, int: 110, ski: 130, spd: 120, def: 120 },
+                palette: { body: "#ff9ebb", belly: "#fff0f5", accent: "#ff477e", eye: "#1c192b" },
+                desc: "Beloved blossom spirit with balanced growth and fast Guts recovery."
+            },
+            Sueki: {
+                name: "Sueki", gutsRate: 12,
+                base: { lif: 100, pow: 85, int: 165, ski: 155, spd: 120, def: 90 },
+                palette: { body: "#f4c430", belly: "#fff6cc", accent: "#9b5de5", eye: "#00bbf9" },
+                desc: "Floating cyclopean rune-sentinel gifted with arcane intelligence."
+            },
+            Golem: {
+                name: "Golem", gutsRate: 7,
+                base: { lif: 160, pow: 185, int: 70, ski: 95, spd: 65, def: 180 },
+                palette: { body: "#8d99ae", belly: "#d9e2ec", accent: "#e07a5f", eye: "#ffbe0b" },
+                desc: "Colossal stone titan with earth-shattering Power and Defense."
+            },
+            Tiger: {
+                name: "Tiger", gutsRate: 14,
+                base: { lif: 115, pow: 130, int: 120, ski: 155, spd: 165, def: 90 },
+                palette: { body: "#3a86ff", belly: "#e0fbfc", accent: "#ffbe0b", eye: "#ff006e" },
+                desc: "Horned frost-wolf beast prized for lightning Speed and accuracy."
+            },
+            Pixie: {
+                name: "Pixie", gutsRate: 16,
+                base: { lif: 90, pow: 80, int: 175, ski: 145, spd: 170, def: 80 },
+                palette: { body: "#ff6b8b", belly: "#ffe5ec", accent: "#72efdd", eye: "#3a0ca3" },
+                desc: "Winged astral valkyrie with the fastest Guts regeneration in IMA."
+            },
+            Naga: {
+                name: "Naga", gutsRate: 11,
+                base: { lif: 125, pow: 160, int: 100, ski: 160, spd: 115, def: 115 },
+                palette: { body: "#7209b7", belly: "#e0aaff", accent: "#00f5d4", eye: "#ff0055" },
+                desc: "Vicious armored serpent with razor-accurate piercing strikes."
+            },
+            Durahan: {
+                name: "Durahan", gutsRate: 9,
+                base: { lif: 145, pow: 165, int: 95, ski: 135, spd: 85, def: 175 },
+                palette: { body: "#4cc9f0", belly: "#caf0f8", accent: "#f72585", eye: "#ffea00" },
+                desc: "Living suit of enchanted knight armor wielding a spectral broadsword."
+            },
+            Hare: {
+                name: "Hare", gutsRate: 15,
+                base: { lif: 120, pow: 145, int: 90, ski: 145, spd: 160, def: 95 },
+                palette: { body: "#e09f3e", belly: "#fff3b0", accent: "#9e2a2b", eye: "#2b2d42" },
+                desc: "Street-brawling jackrabbit pugilist with blinding footwork."
+            },
+            Dragon: {
+                name: "Dragon", gutsRate: 9,
+                base: { lif: 150, pow: 180, int: 155, ski: 145, spd: 120, def: 145 },
+                palette: { body: "#d90429", belly: "#ffd166", accent: "#ff9f1c", eye: "#06d6a0" },
+                desc: "Legendary winged wyvern capable of devastating breath & claw attacks."
+            },
+            Mecha: {
+                name: "Mecha", gutsRate: 10,
+                base: { lif: 155, pow: 165, int: 140, ski: 170, spd: 130, def: 170 },
+                palette: { body: "#00f5d4", belly: "#9bf6ff", accent: "#ff007f", eye: "#fee440" },
+                desc: "Ancient clockwork dreadnought equipped with laser cannons."
+            }
+        };
+
+        /* ==============================================================
+           2. COMBAT TECHNIQUES DATABASE (NEAR / MID / FAR RANGE)
+           ============================================================== */
+        const TECH_DB = {
+            "t_strike":   { id: "t_strike",   name: "Heavy Strike",     range: "Near", cost: 14, pow: 24, hit: 86, stat: "pow" },
+            "t_flurry":   { id: "t_flurry",   name: "Sonic Combo",      range: "Near", cost: 20, pow: 36, hit: 82, stat: "pow" },
+            "t_suplex":   { id: "t_suplex",   name: "Titan Crusher",    range: "Near", cost: 28, pow: 55, hit: 74, stat: "pow" },
+            "t_dash":     { id: "t_dash",     name: "Vortex Charge",    range: "Mid",  cost: 18, pow: 32, hit: 84, stat: "pow" },
+            "t_bolt":     { id: "t_bolt",     name: "Arcane Bolt",      range: "Mid",  cost: 16, pow: 30, hit: 88, stat: "int" },
+            "t_blade":    { id: "t_blade",    name: "Plasma Slash",     range: "Mid",  cost: 25, pow: 48, hit: 80, stat: "pow" },
+            "t_ray":      { id: "t_ray",      name: "Psychic Ray",      range: "Far",  cost: 18, pow: 34, hit: 90, stat: "int" },
+            "t_breath":   { id: "t_breath",   name: "Inferno Breath",   range: "Far",  cost: 28, pow: 56, hit: 78, stat: "int" },
+            "t_cannon":   { id: "t_cannon",   name: "Hyper Railgun",    range: "Far",  cost: 32, pow: 64, hit: 82, stat: "int" }
+        };
+
+        /* ==============================================================
+           3. TOURNAMENT LADDER
+           ============================================================== */
+        const TOURNAMENTS = [
+            { grade: "E", name: "Rookie Cup (Grade E)", prize: 600, enemy: { name: "Moss Mochi", main: "Mochi", sub: "Golem", lif: 150, pow: 120, int: 110, ski: 125, spd: 115, def: 120 } },
+            { grade: "D", name: "Bronze Disc Open (Grade D)", prize: 1200, enemy: { name: "Volt Tiger", main: "Tiger", sub: "Sueki", lif: 220, pow: 190, int: 180, ski: 210, spd: 220, def: 150 } },
+            { grade: "C", name: "Silver Sanctuary Cup (Grade C)", prize: 2400, enemy: { name: "Abyss Naga", main: "Naga", sub: "Dragon", lif: 320, pow: 310, int: 220, ski: 290, spd: 250, def: 260 } },
+            { grade: "B", name: "Emerald Sovereign (Grade B)", prize: 4200, enemy: { name: "Aegis Knight", main: "Durahan", sub: "Mecha", lif: 450, pow: 420, int: 300, ski: 380, spd: 290, def: 460 } },
+            { grade: "A", name: "Grand Imperial Crown (Grade A)", prize: 7500, enemy: { name: "Astral Titan", main: "Golem", sub: "Pixie", lif: 620, pow: 600, int: 450, ski: 490, spd: 380, def: 590 } },
+            { grade: "S", name: "Major 4 Legend Cup (Grade S)", prize: 15000, enemy: { name: "Bahamut Omega", main: "Dragon", sub: "Mecha", lif: 850, pow: 820, int: 780, ski: 790, spd: 720, def: 780 } }
+        ];
+
+        /* ==============================================================
+           4. SHOP ITEMS & SECRET FUSION CATALYSTS
+           ============================================================== */
+        const SHOP_ITEMS = [
+            { id: "nuts_oil", name: "🧪 Nuts Oil", cost: 120, type: "care", desc: "Instantly removes -45 Fatigue and refreshes your active monster." },
+            { id: "golden_peach", name: "🍑 Golden Peach of Youth", cost: 1800, type: "care", desc: "Rejuvenates your active monster's age by -1 Year (-48 Weeks)!" },
+            { id: "vit_pow", name: "💊 Laurus Protein (+35 POW/LIF)", cost: 450, type: "stat", stat1: "pow", stat2: "lif", desc: "Permanent +35 POW and +25 LIF to active monster." },
+            { id: "vit_int", name: "💧 Nectar of Mind (+35 INT/SKI)", cost: 450, type: "stat", stat1: "int", stat2: "ski", desc: "Permanent +35 INT and +25 SKI to active monster." },
+            { id: "vit_spd", name: "⚡ Wind Feather (+35 SPD/DEF)", cost: 450, type: "stat", stat1: "spd", stat2: "def", desc: "Permanent +35 SPD and +25 DEF to active monster." },
+            { id: "rel_dragon", name: "🐉 Dragon Tusk Relic", cost: 2200, type: "relic", relicName: "Dragon Tusk", desc: "Fusion Catalyst: Mutates offspring into a pure/hybrid Dragon +50 All Stats!" },
+            { id: "rel_mecha", name: "⚙️ Omega Cyber Core", cost: 2200, type: "relic", relicName: "Omega Cyber Core", desc: "Fusion Catalyst: Mutates offspring into a Mecha Dreadnought +50 All Stats!" },
+            { id: "rel_paradox", name: "✨ Paradox Astral Shard", cost: 1500, type: "relic", relicName: "Paradox Shard", desc: "Fusion Catalyst: Keeps Parent A breed but grants +85 Bonus to ALL 6 Stats!" }
+        ];
+
+        /* ==============================================================
+           5. PROCEDURAL 64-BIT CANVAS MONSTER RENDERER
+           ============================================================== */
+        let animTick = 0;
+
+        function drawMonsterSprite(canvasId, mon, isAttacking = false, flipX = false) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || !mon) return;
+            const ctx = canvas.getContext("2d");
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            const mainB = BREEDS[mon.main] || BREEDS.Mochi;
+            const subB = BREEDS[mon.sub] || mainB;
+            const pal = subB.palette;
+
+            const bounce = Math.sin(animTick * 0.08 + (mon.seed || 1)) * 3.5;
+            const lunge = isAttacking ? 12 : 0;
+
+            ctx.save();
+            ctx.translate(w / 2 + (flipX ? -lunge : lunge), h / 2 + bounce);
+            if (flipX) ctx.scale(-1, 1);
+
+            // Ground shadow
+            ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+            ctx.beginPath();
+            ctx.ellipse(0, 44 - bounce, 34, 9, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hybrid Elemental Aura if Main != Sub
+            if (mon.main !== mon.sub || mon.grade === "S") {
+                ctx.strokeStyle = pal.accent;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(0, 2, 46 + Math.sin(animTick * 0.12) * 3, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Sub-breed Wings (Dragon or Pixie sub)
+            if (mon.sub === "Dragon" || mon.sub === "Pixie" || mon.main === "Dragon" || mon.main === "Pixie") {
+                ctx.fillStyle = pal.accent;
+                ctx.beginPath();
+                ctx.moveTo(-12, -4);
+                ctx.lineTo(-48, -28 + bounce * 0.6);
+                ctx.lineTo(-38, 12);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(12, -4);
+                ctx.lineTo(48, -28 + bounce * 0.6);
+                ctx.lineTo(38, 12);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Main Breed Silhouettes & Details
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = "#0a1017";
+
+            if (mon.main === "Mochi") {
+                // Blossom Spirit Body
+                ctx.fillStyle = pal.body;
+                ctx.beginPath();
+                ctx.ellipse(0, 8, 30, 32, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Sakura Petals Crest
+                ctx.fillStyle = pal.accent;
+                for (let i = -1; i <= 1; i++) {
+                    ctx.beginPath();
+                    ctx.ellipse(i * 12, -22, 7, 11, i * 0.3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+
+                // Belly
+                ctx.fillStyle = pal.belly;
+                ctx.beginPath();
+                ctx.ellipse(0, 14, 19, 18, 0, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (mon.main === "Sueki") {
+                // Giant Floating Eye Orb + Tail
+                ctx.fillStyle = pal.body;
+                ctx.beginPath();
+                ctx.arc(0, -2, 30, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Sclera & Iris
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath();
+                ctx.arc(4, -2, 16, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = pal.accent;
+                ctx.beginPath();
+                ctx.arc(6, -2, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = "#000";
+                ctx.beginPath();
+                ctx.arc(7, -2, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (mon.main === "Golem") {
+                // Massive Blocky Titan
+                ctx.fillStyle = pal.body;
+                ctx.fillRect(-32, -26, 64, 56);
+                ctx.strokeRect(-32, -26, 64, 56);
+
+                // Shoulder Pauldrons
+                ctx.fillStyle = pal.accent;
+                ctx.fillRect(-44, -22, 14, 28);
+                ctx.strokeRect(-44, -22, 14, 28);
+                ctx.fillRect(30, -22, 14, 28);
+                ctx.strokeRect(30, -22, 14, 28);
+
+                // Core Chest Rune
+                ctx.fillStyle = pal.belly;
+                ctx.beginPath();
+                ctx.moveTo(0, -10);
+                ctx.lineTo(12, 4);
+                ctx.lineTo(0, 18);
+                ctx.lineTo(-12, 4);
+                ctx.closePath();
+                ctx.fill();
+            } else if (mon.main === "Tiger") {
+                // Quadruped Lupine + Golden Horns
+                ctx.fillStyle = pal.body;
+                ctx.beginPath();
+                ctx.ellipse(0, 8, 32, 24, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Lupine Ears & Curved Horns
+                ctx.fillStyle = pal.accent;
+                ctx.beginPath();
+                ctx.moveTo(-14, -12);
+                ctx.lineTo(-26, -38);
+                ctx.lineTo(-4, -16);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(14, -12);
+                ctx.lineTo(26, -38);
+                ctx.lineTo(4, -16);
+                ctx.fill();
+                ctx.stroke();
+            } else if (mon.main === "Dragon") {
+                // Fierce Wyvern Torso & Horns
+                ctx.fillStyle = pal.body;
+                ctx.beginPath();
+                ctx.moveTo(0, -34);
+                ctx.lineTo(28, 12);
+                ctx.lineTo(18, 36);
+                ctx.lineTo(-18, 36);
+                ctx.lineTo(-28, 12);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Plated Belly
+                ctx.fillStyle = pal.belly;
+                ctx.fillRect(-11, -6, 22, 34);
+
+                // Dragon Crown Horns
+                ctx.fillStyle = pal.accent;
+                ctx.beginPath();
+                ctx.moveTo(-10, -28);
+                ctx.lineTo(-28, -46);
+                ctx.lineTo(-4, -22);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(10, -28);
+                ctx.lineTo(28, -46);
+                ctx.lineTo(4, -22);
+                ctx.fill();
+            } else if (mon.main === "Mecha") {
+                // Hexagonal Dreadnought Chassis
+                ctx.fillStyle = pal.body;
+                ctx.beginPath();
+                ctx.roundRect(-28, -28, 56, 58, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                // Shoulder Laser Pods
+                ctx.fillStyle = "#1f2e3d";
+                ctx.fillRect(-40, -32, 12, 24);
+                ctx.fillRect(28, -32, 12, 24);
+
+                // Glowing Visor
+                ctx.fillStyle = pal.accent;
+                ctx.fillRect(-18, -14, 36, 9);
+            } else {
+                // Pixie / Naga / Durahan / Hare Distinctive Crest Body
+                ctx.fillStyle = pal.body;
+                ctx.beginPath();
+                ctx.ellipse(0, 6, 27, 30, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Tall Ears / Knight Plume
+                ctx.fillStyle = pal.accent;
+                ctx.beginPath();
+                ctx.moveTo(-10, -20);
+                ctx.lineTo(-18, -46);
+                ctx.lineTo(-2, -22);
+                ctx.fill();
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(10, -20);
+                ctx.lineTo(18, -46);
+                ctx.lineTo(2, -22);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = pal.belly;
+                ctx.beginPath();
+                ctx.ellipse(0, 12, 16, 17, 0, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Eyes (for non-Sueki/Mecha)
+            if (mon.main !== "Sueki" && mon.main !== "Mecha") {
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath();
+                ctx.arc(-10, -4, 5.5, 0, Math.PI * 2);
+                ctx.arc(10, -4, 5.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = pal.eye;
+                ctx.beginPath();
+                ctx.arc(-9, -4, 3, 0, Math.PI * 2);
+                ctx.arc(11, -4, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        /* ==============================================================
+           6. CODE64 ENCODER / DECODER & DETERMINISTIC SEED HASH
+           ============================================================== */
+        function hashString(str) {
+            let h = 2166136261 >>> 0;
+            for (let i = 0; i < str.length; i++) {
+                h ^= str.charCodeAt(i);
+                h = Math.imul(h, 16777619);
+            }
+            return h >>> 0;
+        }
+
+        function generateMonsterFromSeed(seedPhrase) {
+            const clean = (seedPhrase || "DISCSTONE").trim().toUpperCase();
+            const h = hashString(clean);
+            const breedKeys = Object.keys(BREEDS);
+
+            let main = breedKeys[h % breedKeys.length];
+            let sub = breedKeys[(h >> 4) % breedKeys.length];
+            let bonus = (h % 35);
+
+            // Famous Easter Egg Discs
+            if (clean.includes("BAHAMUT") || clean.includes("DRAGON")) { main = "Dragon"; sub = "Tiger"; bonus = 65; }
+            else if (clean.includes("OMEGA") || clean.includes("CYBER")) { main = "Mecha"; sub = "Dragon"; bonus = 70; }
+            else if (clean.includes("VALKYRIE") || clean.includes("ANGEL")) { main = "Pixie"; sub = "Sueki"; bonus = 55; }
+            else if (clean.includes("GOLEM") || clean.includes("TITAN")) { main = "Golem"; sub = "Durahan"; bonus = 60; }
+
+            const bDef = BREEDS[main];
+            const sDef = BREEDS[sub];
+            const prefixes = ["Astra", "Valkyr", "Pyro", "Chrono", "Aegis", "Zephyr", "Boreal", "Nova", "Rex", "Kira"];
+            const name = `${prefixes[h % prefixes.length]}-${clean.slice(0, 4)}`;
+
+            return {
+                id: "m_" + Date.now() + "_" + (h % 999),
+                name: name,
+                main: main,
+                sub: sub,
+                gen: 1,
+                grade: "E",
+                ageWeeks: 0,
+                fatigue: 0,
+                loyalty: 65,
+                lif: Math.round((bDef.base.lif * 0.7) + (sDef.base.lif * 0.3) + bonus),
+                pow: Math.round((bDef.base.pow * 0.7) + (sDef.base.pow * 0.3) + bonus),
+                int: Math.round((bDef.base.int * 0.7) + (sDef.base.int * 0.3) + bonus),
+                ski: Math.round((bDef.base.ski * 0.7) + (sDef.base.ski * 0.3) + bonus),
+                spd: Math.round((bDef.base.spd * 0.7) + (sDef.base.spd * 0.3) + bonus),
+                def: Math.round((bDef.base.def * 0.7) + (sDef.base.def * 0.3) + bonus),
+                techs: ["t_strike", "t_dash", (bDef.base.int > bDef.base.pow ? "t_ray" : "t_flurry")],
+                seed: (h % 1000)
+            };
+        }
+
+        function encodeMonsterCode64(m) {
+            const payload = {
+                n: m.name,
+                m: m.main,
+                s: m.sub,
+                g: m.gen || 1,
+                r: m.grade || "E",
+                st: [m.lif, m.pow, m.int, m.ski, m.spd, m.def],
+                t: m.techs || ["t_strike", "t_dash"],
+                sd: m.seed || 42
+            };
+            return "MR64-" + btoa(encodeURIComponent(JSON.stringify(payload)));
+        }
+
+        function decodeMonsterCode64(codeStr) {
+            const trimmed = codeStr.trim();
+            if (!trimmed.startsWith("MR64-")) return null;
+            const raw = trimmed.slice(5);
+            const data = JSON.parse(decodeURIComponent(atob(raw)));
+            if (!BREEDS[data.m] || !BREEDS[data.s]) return null;
+            return {
+                id: "m_" + Date.now() + "_" + Math.floor(Math.random() * 999),
+                name: (data.n || "Clone64").slice(0, 16),
+                main: data.m,
+                sub: data.s,
+                gen: data.g || 1,
+                grade: data.r || "E",
+                ageWeeks: 0,
+                fatigue: 0,
+                loyalty: 80,
+                lif: Math.min(999, Math.max(50, parseInt(data.st?.[0]) || 140)),
+                pow: Math.min(999, Math.max(50, parseInt(data.st?.[1]) || 140)),
+                int: Math.min(999, Math.max(50, parseInt(data.st?.[2]) || 140)),
+                ski: Math.min(999, Math.max(50, parseInt(data.st?.[3]) || 140)),
+                spd: Math.min(999, Math.max(50, parseInt(data.st?.[4]) || 140)),
+                def: Math.min(999, Math.max(50, parseInt(data.st?.[5]) || 140)),
+                techs: Array.isArray(data.t) ? data.t : ["t_strike", "t_dash"],
+                seed: data.sd || 77
+            };
+        }
+
+        /* ==============================================================
+           7. DEFAULT GAME STATE
+           ============================================================== */
+        function createDefaultState() {
+            const starter1 = {
+                id: "m_starter_1",
+                name: "Sakura",
+                main: "Mochi",
+                sub: "Pixie",
+                gen: 1,
+                grade: "E",
+                ageWeeks: 0,
+                fatigue: 0,
+                loyalty: 75,
+                lif: 145, pow: 125, int: 150, ski: 155, spd: 160, def: 120,
+                techs: ["t_strike", "t_dash", "t_ray"],
+                seed: 101
+            };
+            const starter2 = {
+                id: "m_starter_2",
+                name: "Fang",
+                main: "Tiger",
+                sub: "Golem",
+                gen: 1,
+                grade: "E",
+                ageWeeks: 0,
+                fatigue: 0,
+                loyalty: 70,
+                lif: 160, pow: 165, int: 105, ski: 150, spd: 145, def: 140,
+                techs: ["t_strike", "t_flurry", "t_dash"],
+                seed: 202
+            };
+            return {
+                godMode: false,
+                ranchName: "Starlight Ranch",
+                ranchLevel: 1,
+                gold: 3500,
+                totalWeeks: 0,
+                activeIndex: 0,
+                barn: [starter1, starter2],
+                relics: ["Paradox Shard"],
+                upgrades: {
+                    barnLvl: 1,
+                    altarLvl: 1,
+                    sponsorLvl: 1
+                }
+            };
+        }
+
+        let G = createDefaultState();
+        let pendingShrineMonster = generateMonsterFromSeed("BAHAMUT ZERO");
+        let arenaState = null;
+
+        /* ==============================================================
+           8. MASTER GAME CONTROLLER
+           ============================================================== */
+        const MR64 = {
+            init() {
+                const saved = localStorage.getItem("discstone_64_save_v1");
+                if (saved) {
+                    try {
+                        G = Object.assign(createDefaultState(), JSON.parse(saved));
+                    } catch (e) { console.error(e); }
+                }
+                this.refreshUI();
+                this.startSpriteLoop();
+            },
+
+            startSpriteLoop() {
+                setInterval(() => {
+                    animTick++;
+                    const active = this.getActive();
+                    drawMonsterSprite("ranchSpriteCanvas", active);
+                    if (pendingShrineMonster) {
+                        drawMonsterSprite("shrinePreviewCanvas", pendingShrineMonster);
+                    }
+                    if (arenaState && arenaState.active) {
+                        drawMonsterSprite("arenaPlayerCanvas", active, arenaState.playerAnim > 0, false);
+                        drawMonsterSprite("arenaEnemyCanvas", arenaState.enemy, arenaState.enemyAnim > 0, true);
+                        if (arenaState.playerAnim > 0) arenaState.playerAnim--;
+                        if (arenaState.enemyAnim > 0) arenaState.enemyAnim--;
+                    }
+                }, 50);
+
+                // Arena Real-Time Guts & Timer Loop (1 sec tick)
+                setInterval(() => {
+                    if (!arenaState || !arenaState.active) return;
+                    arenaState.timeLeft = Math.max(0, arenaState.timeLeft - 1);
+                    const pRate = (BREEDS[this.getActive().main]?.gutsRate || 11);
+                    arenaState.playerGuts = Math.min(99, arenaState.playerGuts + Math.ceil(pRate / 3));
+                    arenaState.enemyGuts = Math.min(99, arenaState.enemyGuts + 4);
+
+                    // Enemy AI Attack
+                    if (arenaState.enemyGuts >= 24 && Math.random() < 0.45) {
+                        this.enemyTurnAttack();
+                    }
+                    if (arenaState.timeLeft <= 0) {
+                        this.finishArenaMatch(arenaState.playerHp >= arenaState.enemyHp);
+                    }
+                    this.renderArenaHUD();
+                }, 900);
+            },
+
+            getActive() {
+                if (!G.barn || G.barn.length === 0) G.barn = createDefaultState().barn;
+                if (G.activeIndex >= G.barn.length) G.activeIndex = 0;
+                return G.barn[G.activeIndex];
+            },
+
+            getMaxBarnCap() {
+                return 8 + (G.upgrades.barnLvl * 4);
+            },
+
+            log(msg) {
+                const box = document.getElementById("chronicleLog");
+                if (!box) return;
+                const d = document.createElement("div");
+                d.innerHTML = `<span class="text-[#f5b942]">[Wk ${G.totalWeeks + 1}]</span> ${msg}`;
+                box.insertBefore(d, box.firstChild);
+                if (box.children.length > 40) box.removeChild(box.lastChild);
+            },
+
+            switchTab(tabId) {
+                const tabs = ['ranch', 'barn', 'shrine', 'fusion', 'arena', 'market', 'guide'];
+                tabs.forEach(t => {
+                    document.getElementById(`tabPanel-${t}`).classList.add('hidden');
+                    document.getElementById(`tabBtn-${t}`).classList.remove('tab-active');
+                });
+                document.getElementById(`tabPanel-${tabId}`).classList.remove('hidden');
+                document.getElementById(`tabBtn-${tabId}`).classList.add('tab-active');
+                this.refreshUI();
+            },
+
+            advanceWeek(weeks = 1) {
+                G.totalWeeks += weeks;
+                const active = this.getActive();
+                active.ageWeeks = (active.ageWeeks || 0) + weeks;
+                const passiveGold = (G.upgrades.sponsorLvl || 1) * 75 * weeks;
+                G.gold += passiveGold;
+            },
+
+            /* ==========================================================
+               GOD MODE
+               ========================================================== */
+            toggleGodMode() {
+                G.godMode = !G.godMode;
+                if (G.godMode) {
+                    this.getActive().fatigue = 0;
+                    this.getActive().loyalty = 100;
+                    this.log(`<span class="text-purple-300 font-bold">⚡ GOD MODE ENABLED:</span> Zero Fatigue, 100% Drill/Battle Success & Cheat Bar unlocked!`);
+                } else {
+                    this.log(`⚡ God Mode disabled.`);
+                }
+                this.refreshUI();
+            },
+
+            godAction(type) {
+                const m = this.getActive();
+                if (type === 'gold') {
+                    G.gold += 50000;
+                    this.log(`⚡ God Cheat: +50,000G added to Ranch Treasury.`);
+                } else if (type === 'stats') {
+                    ['lif', 'pow', 'int', 'ski', 'spd', 'def'].forEach(k => {
+                        m[k] = Math.min(999, m[k] + 200);
+                    });
+                    this.log(`⚡ God Cheat: +200 to ALL 6 Stats on <b>${m.name}</b>!`);
+                } else if (type === 'rank') {
+                    m.grade = "S";
+                    m.techs = Object.keys(TECH_DB);
+                    this.log(`⚡ God Cheat: Promoted <b>${m.name}</b> to Class S (Legend) & unlocked all Techniques!`);
+                } else if (type === 'items') {
+                    G.relics.push("Dragon Tusk", "Omega Cyber Core", "Paradox Shard");
+                    this.log(`⚡ God Cheat: Added Dragon Tusk, Omega Cyber Core & Paradox Shard to Relics!`);
+                }
+                this.refreshUI();
+            },
+
+            /* ==========================================================
+               TAB 1: RANCH DRILLS, CARE & ERRANTY
+               ========================================================== */
+            renameActive(val) {
+                if (!val.trim()) return;
+                this.getActive().name = val.trim();
+                this.refreshUI();
+            },
+
+            copyActiveCode64() {
+                const m = this.getActive();
+                const code = encodeMonsterCode64(m);
+                this.copyTextToClipboard(code);
+                this.log(`<span class="text-[#00e1ff] font-bold">🧬 Copied Code64 DNA for ${m.name}:</span> <code>${code.slice(0, 32)}...</code>`);
+            },
+
+            copyBarnCode64(idx) {
+                const m = G.barn[idx];
+                if (!m) return;
+                const code = encodeMonsterCode64(m);
+                this.copyTextToClipboard(code);
+                this.log(`<span class="text-[#00e1ff] font-bold">🧬 Copied Code64 DNA for ${m.name}!</span> Paste it in the Shrine to clone or share!`);
+            },
+
+            copyTextToClipboard(str) {
+                const el = document.createElement("textarea");
+                el.value = str;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand("copy");
+                document.body.removeChild(el);
+            },
+
+            restWeek() {
+                const m = this.getActive();
+                const rec = 42 + (G.upgrades.barnLvl * 8);
+                m.fatigue = Math.max(0, m.fatigue - rec);
+                this.advanceWeek(1);
+                this.log(`🛌 <b>${m.name}</b> rested in the Barn (-${rec} Fatigue, +${G.upgrades.sponsorLvl * 75}G Sponsor Pay).`);
+                this.refreshUI();
+            },
+
+            feedTreat() {
+                if (!G.godMode && G.gold < 60) {
+                    this.log(`<span class="text-rose-400">⚠️ Need 60G for Cup Jelly.</span>`);
+                    return;
+                }
+                if (!G.godMode) G.gold -= 60;
+                const m = this.getActive();
+                m.fatigue = Math.max(0, m.fatigue - 25);
+                m.loyalty = Math.min(100, m.loyalty + 5);
+                this.log(`🍮 Fed <b>${m.name}</b> a sweet Cup Jelly (-25 Fatigue, +5 Loyalty).`);
+                this.refreshUI();
+            },
+
+            runDrill(type, stat1, stat2, drillName) {
+                const m = this.getActive();
+                if (!G.godMode && m.fatigue >= 85) {
+                    this.log(`<span class="text-rose-400">⚠️ ${m.name} is too fatigued (${m.fatigue}/100)! Click 'Rest Wk' or feed Cup Jelly first!</span>`);
+                    return;
+                }
+                if (type === 'heavy') {
+                    if (!G.godMode && G.gold < 80) {
+                        this.log(`<span class="text-rose-400">⚠️ Need 80G for a Heavy Master Drill!</span>`);
+                        return;
+                    }
+                    if (!G.godMode) G.gold -= 80;
+                }
+
+                const successChance = G.godMode ? 1.0 : Math.max(0.45, (110 - m.fatigue * 0.5 + m.loyalty * 0.25) / 100);
+                this.advanceWeek(1);
+
+                const fatCost = G.godMode ? 0 : Math.max(5, (type === 'heavy' ? 24 : 14) - (G.upgrades.barnLvl * 2));
+                m.fatigue = Math.min(100, m.fatigue + fatCost);
+
+                if (Math.random() <= successChance) {
+                    const gain1 = (type === 'heavy' ? 16 : 11) + Math.floor(Math.random() * 6);
+                    m[stat1] = Math.min(999, m[stat1] + gain1);
+                    let msg = `<span class="text-[#22e58b] font-bold">🏋️ GREAT DRILL (${drillName})!</span> ${m.name} gained <b>+${gain1} ${stat1.toUpperCase()}</b>`;
+
+                    if (stat2) {
+                        const gain2 = 7 + Math.floor(Math.random() * 5);
+                        m[stat2] = Math.min(999, m[stat2] + gain2);
+                        msg += ` & <b>+${gain2} ${stat2.toUpperCase()}</b>`;
+                    }
+                    m.loyalty = Math.min(100, m.loyalty + 2);
+                    this.log(msg + `!`);
+                } else {
+                    const mini = 3;
+                    m[stat1] = Math.min(999, m[stat1] + mini);
+                    this.log(`<span class="text-amber-300">💦 Sluggish Drill (${drillName}):</span> ${m.name} got distracted (+${mini} ${stat1.toUpperCase()}).`);
+                }
+                this.saveGame(true);
+                this.refreshUI();
+            },
+
+            runErrantry(region, focusStat) {
+                const m = this.getActive();
+                if (!G.godMode && G.gold < 250) {
+                    this.log(`<span class="text-rose-400">⚠️ Need 250G for a 4-Week Errantry Expedition!</span>`);
+                    return;
+                }
+                if (!G.godMode) G.gold -= 250;
+                this.advanceWeek(4);
+
+                const gain = 28 + Math.floor(Math.random() * 12);
+                m[focusStat] = Math.min(999, m[focusStat] + gain);
+                if (!G.godMode) m.fatigue = Math.min(100, m.fatigue + 30);
+
+                // Unlock a new Technique
+                const unlearned = Object.keys(TECH_DB).filter(t => !m.techs.includes(t));
+                let techMsg = "";
+                if (unlearned.length > 0) {
+                    const learned = unlearned[Math.floor(Math.random() * unlearned.length)];
+                    m.techs.push(learned);
+                    techMsg = ` & mastered <b class="text-[#00e1ff]">⚡ ${TECH_DB[learned].name}</b>`;
+                }
+
+                // 50% chance to find a Fusion Relic
+                let relicMsg = "";
+                if (Math.random() < 0.55 || G.godMode) {
+                    const pool = ["Dragon Tusk", "Omega Cyber Core", "Paradox Shard"];
+                    const found = pool[Math.floor(Math.random() * pool.length)];
+                    G.relics.push(found);
+                    relicMsg = ` + Unearthed <b class="text-[#f5b942]">🎁 ${found}</b>!`;
+                }
+
+                this.log(`<span class="text-[#00e1ff] font-bold">🗺️ Errantry Complete (${region}):</span> +${gain} ${focusStat.toUpperCase()}${techMsg}${relicMsg}`);
+                this.refreshUI();
+            },
+
+            /* ==========================================================
+               TAB 2: UNIFIED BARN ROSTER
+               ========================================================== */
+            selectBarnMonster(idx) {
+                if (idx >= 0 && idx < G.barn.length) {
+                    G.activeIndex = idx;
+                    this.log(`🏠 Switched Active Monster to <b>${this.getActive().name}</b>.`);
+                    this.refreshUI();
+                }
+            },
+
+            retireMonster(idx) {
+                if (G.barn.length <= 1) {
+                    this.log(`<span class="text-rose-400">⚠️ You must keep at least 1 monster in your Barn!</span>`);
+                    return;
+                }
+                const rem = G.barn.splice(idx, 1)[0];
+                if (G.activeIndex >= G.barn.length) G.activeIndex = 0;
+                G.gold += 300;
+                this.log(`👋 Retired <b>${rem.name}</b> to the IMA Sanctuary (+300G Retirement Stipend).`);
+                this.refreshUI();
+            },
+
+            /* ==========================================================
+               TAB 3: CODE64 SHRINE & TRADE CODE TELEPORTER
+               ========================================================== */
+            summonFromSeed() {
+                const phrase = document.getElementById("shrineSeedInput").value.trim() || "STARLIGHT 64";
+                pendingShrineMonster = generateMonsterFromSeed(phrase);
+                document.getElementById("shrineOriginLabel").innerText = `Disc Seed: "${phrase.toUpperCase()}"`;
+                this.log(`💿 Shrine Disc Stone resonated with seed <b>"${phrase.toUpperCase()}"</b> → Manifested <b>${pendingShrineMonster.main}/${pendingShrineMonster.sub}</b>!`);
+                this.renderShrinePreview();
+            },
+
+            quickSeed(phrase) {
+                document.getElementById("shrineSeedInput").value = phrase;
+                this.summonFromSeed();
+            },
+
+            randomSeedSummon() {
+                const words = ["SOLARIS 64", "ECLIPSE", "HYPERION", "MEGALITH", "SHADOW FANG", "STARDUST", "CRIMSON KING", "CHRONO TRIGGER"];
+                const pick = words[Math.floor(Math.random() * words.length)] + "-" + Math.floor(Math.random() * 999);
+                this.quickSeed(pick);
+            },
+
+            importCode64() {
+                const str = document.getElementById("shrineCode64Input").value.trim();
+                if (!str) return;
+                try {
+                    const decoded = decodeMonsterCode64(str);
+                    if (!decoded) throw new Error("Bad code");
+                    pendingShrineMonster = decoded;
+                    document.getElementById("shrineOriginLabel").innerText = `Code64 DNA Verified!`;
+                    this.log(`<span class="text-[#00e1ff] font-bold">🧬 Code64 Decoded!</span> Reconstructed <b>${decoded.name} (${decoded.main}/${decoded.sub})</b> on the Altar!`);
+                    this.renderShrinePreview();
+                } catch (e) {
+                    this.log(`<span class="text-rose-400">⚠️ Invalid MR64-... Trade Code string.</span>`);
+                }
+            },
+
+            loadPromoCode(idx) {
+                const promos = [
+                    encodeMonsterCode64({
+                        name: "Ignis-Rex", main: "Dragon", sub: "Golem", gen: 2, grade: "C",
+                        lif: 240, pow: 280, int: 210, ski: 230, spd: 190, def: 250,
+                        techs: ["t_strike", "t_breath", "t_suplex"], seed: 777
+                    }),
+                    encodeMonsterCode64({
+                        name: "Volt-Zero", main: "Tiger", sub: "Mecha", gen: 2, grade: "C",
+                        lif: 210, pow: 220, int: 230, ski: 275, spd: 285, def: 200,
+                        techs: ["t_strike", "t_dash", "t_cannon"], seed: 888
+                    }),
+                    encodeMonsterCode64({
+                        name: "Excalibur", main: "Durahan", sub: "Pixie", gen: 2, grade: "C",
+                        lif: 250, pow: 265, int: 220, ski: 250, spd: 210, def: 275,
+                        techs: ["t_strike", "t_blade", "t_ray"], seed: 999
+                    })
+                ];
+                document.getElementById("shrineCode64Input").value = promos[idx];
+                this.importCode64();
+            },
+
+            keepShrineMonster() {
+                if (!pendingShrineMonster) return;
+                if (G.barn.length >= this.getMaxBarnCap() && !G.godMode) {
+                    this.log(`<span class="text-rose-400">⚠️ Barn is full (${G.barn.length}/${this.getMaxBarnCap()})! Upgrade your Barn in the Shop or Fuse/Retire a monster.</span>`);
+                    return;
+                }
+                const clone = JSON.parse(JSON.stringify(pendingShrineMonster));
+                clone.id = "m_" + Date.now() + "_" + Math.floor(Math.random() * 999);
+                G.barn.push(clone);
+                G.activeIndex = G.barn.length - 1;
+                this.log(`<span class="text-[#22e58b] font-bold">🏠 Summoned to Barn:</span> <b>${clone.name} (${clone.main}/${clone.sub})</b> is now your Active Monster!`);
+                this.refreshUI();
+            },
+
+            /* ==========================================================
+               TAB 4: FUSION LAB (COMBINING)
+               ========================================================== */
+            calculateFusionBaby() {
+                if (G.barn.length < 2) return null;
+                const idxA = parseInt(document.getElementById("fusionParentA")?.value || 0);
+                let idxB = parseInt(document.getElementById("fusionParentB")?.value || 1);
+                if (idxA === idxB) idxB = (idxA + 1) % G.barn.length;
+
+                const pA = G.barn[idxA] || G.barn[0];
+                const pB = G.barn[idxB] || G.barn[1] || G.barn[0];
+                const cat = document.getElementById("fusionCatalyst")?.value || "NONE";
+
+                let main = pA.main;
+                let sub = pB.main;
+                let catBonus = 0;
+
+                if (cat === "Dragon Tusk") { main = "Dragon"; sub = pA.main; catBonus = 50; }
+                else if (cat === "Omega Cyber Core") { main = "Mecha"; sub = pA.main; catBonus = 50; }
+                else if (cat === "Paradox Shard") { catBonus = 85; }
+
+                const bDef = BREEDS[main];
+                const calcStat = (k) => {
+                    const base = bDef.base[k];
+                    const inherited = Math.round((pA[k] * 0.28) + (pB[k] * 0.22));
+                    return Math.min(999, base + inherited + catBonus);
+                };
+
+                const combinedTechs = Array.from(new Set([...(pA.techs || []), ...(pB.techs || [])])).slice(0, 5);
+
+                return {
+                    idxA, idxB, cat,
+                    baby: {
+                        id: "m_fused_" + Date.now(),
+                        name: `${pA.name.slice(0, 4)}${pB.name.slice(-3)}`,
+                        main,
+                        sub,
+                        gen: Math.max(pA.gen || 1, pB.gen || 1) + 1,
+                        grade: "E",
+                        ageWeeks: 0,
+                        fatigue: 0,
+                        loyalty: 85,
+                        lif: calcStat("lif"),
+                        pow: calcStat("pow"),
+                        int: calcStat("int"),
+                        ski: calcStat("ski"),
+                        spd: calcStat("spd"),
+                        def: calcStat("def"),
+                        techs: combinedTechs,
+                        seed: ((pA.seed || 10) + (pB.seed || 20)) % 1000
+                    }
+                };
+            },
+
+            updateFusionPreview() {
+                const res = this.calculateFusionBaby();
+                const box = document.getElementById("fusionPreviewDetails");
+                if (!res || !box) return;
+                const { idxA, idxB, baby } = res;
+                const pA = G.barn[idxA];
+                const pB = G.barn[idxB];
+
+                document.getElementById("fusionParentAStats").innerText = `${pA.main}/${pA.sub} • Gen ${pA.gen} • Total: ${pA.lif+pA.pow+pA.int+pA.ski+pA.spd+pA.def}`;
+                document.getElementById("fusionParentBStats").innerText = `${pB.main}/${pB.sub} • Gen ${pB.gen} • Total: ${pB.lif+pB.pow+pB.int+pB.ski+pB.spd+pB.def}`;
+
+                drawMonsterSprite("fusionPreviewCanvas", baby);
+
+                const total = baby.lif + baby.pow + baby.int + baby.ski + baby.spd + baby.def;
+                document.getElementById("fusionCompatBadge").innerText = total > 1400 ? "Compatibility: MIRACLE! ★" : "Compatibility: GREAT!";
+
+                box.innerHTML = `
+                    <div class="flex justify-between font-bold text-[#00e1ff]">
+                        <span>Offspring: ${baby.name} (${baby.main} / ${baby.sub})</span>
+                        <span class="text-[#f5b942]">Gen ${baby.gen}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1.5 mono text-[11px] pt-1">
+                        <div class="bg-[#090e14] p-1 rounded">LIF: <b class="text-amber-300">${baby.lif}</b></div>
+                        <div class="bg-[#090e14] p-1 rounded">POW: <b class="text-rose-300">${baby.pow}</b></div>
+                        <div class="bg-[#090e14] p-1 rounded">INT: <b class="text-emerald-300">${baby.int}</b></div>
+                        <div class="bg-[#090e14] p-1 rounded">SKI: <b class="text-purple-300">${baby.ski}</b></div>
+                        <div class="bg-[#090e14] p-1 rounded">SPD: <b class="text-sky-300">${baby.spd}</b></div>
+                        <div class="bg-[#090e14] p-1 rounded">DEF: <b class="text-orange-300">${baby.def}</b></div>
+                    </div>
+                    <div class="text-[10px] text-[#8ca3ba] pt-1">
+                        Inherited Techs (${baby.techs.length}): <b class="text-[#eef6ff]">${baby.techs.map(t => TECH_DB[t]?.name).join(', ')}</b>
+                    </div>
+                `;
+            },
+
+            executeFusion() {
+                if (G.barn.length < 2) {
+                    this.log(`<span class="text-rose-400">⚠️ Need at least 2 monsters in your Barn to combine! Summon one at the Code64 Shrine first.</span>`);
+                    return;
+                }
+                const res = this.calculateFusionBaby();
+                if (!res) return;
+                const { idxA, idxB, cat, baby } = res;
+                if (idxA === idxB) {
+                    this.log(`<span class="text-rose-400">⚠️ Please select two different monsters as Parent A and Parent B!</span>`);
+                    return;
+                }
+
+                // Consume catalyst if used
+                if (cat !== "NONE" && !G.godMode) {
+                    const rIdx = G.relics.indexOf(cat);
+                    if (rIdx >= 0) G.relics.splice(rIdx, 1);
+                }
+
+                // Remove parents (higher index first)
+                const hi = Math.max(idxA, idxB);
+                const lo = Math.min(idxA, idxB);
+                G.barn.splice(hi, 1);
+                G.barn.splice(lo, 1);
+
+                G.barn.push(baby);
+                G.activeIndex = G.barn.length - 1;
+                this.log(`<span class="text-[#f5b942] font-bold">🧬 FUSION MIRACLE!</span> Combined parents into Gen-${baby.gen} <b>${baby.name} (${baby.main}/${baby.sub})</b>!`);
+                this.switchTab('ranch');
+            },
+
+            /* ==========================================================
+               TAB 5: IMA ARENA TOURNAMENTS & GUTS COMBAT
+               ========================================================== */
+            startTournamentMatch(idx) {
+                const t = TOURNAMENTS[idx];
+                const p = this.getActive();
+                arenaState = {
+                    active: true,
+                    tourney: t,
+                    timeLeft: 60,
+                    range: 1, // 0: Near, 1: Mid, 2: Far
+                    playerHp: p.lif * 2,
+                    playerMaxHp: p.lif * 2,
+                    playerGuts: 50,
+                    playerAnim: 0,
+                    enemy: JSON.parse(JSON.stringify(t.enemy)),
+                    enemyHp: t.enemy.lif * 2,
+                    enemyMaxHp: t.enemy.lif * 2,
+                    enemyGuts: 50,
+                    enemyAnim: 0
+                };
+                document.getElementById("arenaStatusBanner").innerText = `⚔️ LIVE MATCH: ${p.name} vs ${t.enemy.name}!`;
+                this.log(`🏟️ Entered <b>${t.name}</b> against <b>${t.enemy.name}</b>!`);
+                this.renderArenaHUD();
+            },
+
+            shiftRange(dir) {
+                if (!arenaState || !arenaState.active) return;
+                arenaState.range = Math.max(0, Math.min(2, arenaState.range + dir));
+                this.renderArenaHUD();
+            },
+
+            useArenaTech(techId) {
+                if (!arenaState || !arenaState.active) return;
+                const tech = TECH_DB[techId];
+                const p = this.getActive();
+                const e = arenaState.enemy;
+
+                if (!G.godMode && arenaState.playerGuts < tech.cost) {
+                    document.getElementById("arenaStatusBanner").innerText = `⚠️ Need ${tech.cost} Guts for ${tech.name}!`;
+                    return;
+                }
+                if (!G.godMode) arenaState.playerGuts -= tech.cost;
+                arenaState.playerAnim = 5;
+
+                const hitChance = G.godMode ? 100 : Math.min(98, Math.max(25, tech.hit + Math.floor((p.ski - e.spd) * 0.2)));
+                if (Math.random() * 100 <= hitChance) {
+                    const atkStat = p[tech.stat] || p.pow;
+                    const rawDmg = Math.max(12, Math.floor((tech.pow * 1.4) + (atkStat * 0.45) - (e.def * 0.22)));
+                    const dmg = G.godMode ? rawDmg * 2 : rawDmg;
+                    arenaState.enemyHp = Math.max(0, arenaState.enemyHp - dmg);
+                    document.getElementById("arenaStatusBanner").innerText = `💥 ${p.name} used ${tech.name} for ${dmg} DMG!`;
+                    if (arenaState.enemyHp <= 0) {
+                        this.finishArenaMatch(true);
+                    }
+                } else {
+                    document.getElementById("arenaStatusBanner").innerText = `💨 ${e.name} dodged ${tech.name}!`;
+                }
+                this.renderArenaHUD();
+            },
+
+            enemyTurnAttack() {
+                if (!arenaState || !arenaState.active) return;
+                const p = this.getActive();
+                const e = arenaState.enemy;
+                arenaState.enemyGuts = Math.max(0, arenaState.enemyGuts - 20);
+                arenaState.enemyAnim = 5;
+
+                const hitChance = G.godMode ? 0 : Math.min(90, Math.max(20, 75 + Math.floor((e.ski - p.spd) * 0.2)));
+                if (Math.random() * 100 <= hitChance) {
+                    const dmg = Math.max(8, Math.floor(30 + (e.pow * 0.38) - (p.def * 0.25)));
+                    arenaState.playerHp = Math.max(0, arenaState.playerHp - dmg);
+                    document.getElementById("arenaStatusBanner").innerText = `⚠️ ${e.name} struck ${p.name} for ${dmg} DMG!`;
+                    if (arenaState.playerHp <= 0) {
+                        this.finishArenaMatch(false);
+                    }
+                } else {
+                    document.getElementById("arenaStatusBanner").innerText = `✨ ${p.name} evaded ${e.name}'s attack!`;
+                }
+            },
+
+            autoResolveMatch() {
+                if (!arenaState || !arenaState.active) {
+                    this.startTournamentMatch(0);
+                }
+                const p = this.getActive();
+                const e = arenaState.enemy;
+                const pScore = p.lif + p.pow + p.int + p.ski + p.spd + p.def;
+                const eScore = e.lif + e.pow + e.int + e.ski + e.spd + e.def;
+                this.finishArenaMatch(G.godMode || pScore >= eScore * 0.85);
+            },
+
+            finishArenaMatch(won) {
+                if (!arenaState) return;
+                arenaState.active = false;
+                const t = arenaState.tourney;
+                const p = this.getActive();
+                this.advanceWeek(1);
+
+                if (won) {
+                    arenaState.enemyHp = 0;
+                    G.gold += t.prize;
+                    const grades = ["E", "D", "C", "B", "A", "S"];
+                    const curIdx = grades.indexOf(p.grade);
+                    const tIdx = grades.indexOf(t.grade);
+                    if (tIdx >= curIdx) {
+                        p.grade = grades[Math.min(grades.length - 1, tIdx + 1)];
+                    }
+                    // Stat gains from battle
+                    ['lif', 'pow', 'int', 'ski', 'spd', 'def'].forEach(k => {
+                        p[k] = Math.min(999, p[k] + 8);
+                    });
+                    document.getElementById("arenaStatusBanner").innerText = `🏆 K.O. VICTORY! Won +${t.prize}G & Promoted to Class ${p.grade}!`;
+                    this.log(`<span class="text-[#f5b942] font-bold">🏆 TOURNAMENT CHAMPION (${t.name})!</span> Earned <b>+${t.prize}G</b> & promoted to <b>Class ${p.grade}</b>!`);
+                } else {
+                    document.getElementById("arenaStatusBanner").innerText = `💔 Match Lost. Train ${p.name}'s stats in the Ranch and try again!`;
+                    this.log(`<span class="text-rose-400">🏟️ Defeated in ${t.name}.</span>`);
+                }
+                this.refreshUI();
+            },
+
+            /* ==========================================================
+               TAB 6: SHOP, RELICS & RANCH UPGRADES
+               ========================================================== */
+            buyShopItem(id) {
+                const item = SHOP_ITEMS.find(x => x.id === id);
+                if (!item) return;
+                if (!G.godMode && G.gold < item.cost) {
+                    this.log(`<span class="text-rose-400">⚠️ Insufficient Gold! Need ${item.cost}G.</span>`);
+                    return;
+                }
+                if (!G.godMode) G.gold -= item.cost;
+
+                const m = this.getActive();
+                if (item.id === "nuts_oil") {
+                    m.fatigue = Math.max(0, m.fatigue - 45);
+                    this.log(`🧪 Used Nuts Oil on <b>${m.name}</b> (-45 Fatigue).`);
+                } else if (item.id === "golden_peach") {
+                    m.ageWeeks = Math.max(0, (m.ageWeeks || 0) - 48);
+                    this.log(`<span class="text-[#f5b942] font-bold">🍑 Fed Golden Peach!</span> <b>${m.name}</b> rejuvenated by -1 Year!`);
+                } else if (item.type === "stat") {
+                    m[item.stat1] = Math.min(999, m[item.stat1] + 35);
+                    m[item.stat2] = Math.min(999, m[item.stat2] + 25);
+                    this.log(`💊 Administered ${item.name} to <b>${m.name}</b> (+35 ${item.stat1.toUpperCase()}, +25 ${item.stat2.toUpperCase()})!`);
+                } else if (item.type === "relic") {
+                    G.relics.push(item.relicName);
+                    this.log(`🎁 Purchased Fusion Catalyst: <b>${item.relicName}</b>!`);
+                }
+                this.refreshUI();
+            },
+
+            buyRanchUpgrade(key, cost, label) {
+                if (!G.godMode && G.gold < cost) {
+                    this.log(`<span class="text-rose-400">⚠️ Need ${cost}G to upgrade ${label}!</span>`);
+                    return;
+                }
+                if (!G.godMode) G.gold -= cost;
+                G.upgrades[key] = (G.upgrades[key] || 1) + 1;
+                G.ranchLevel = G.upgrades.barnLvl + G.upgrades.altarLvl + G.upgrades.sponsorLvl - 2;
+                this.log(`<span class="text-[#22e58b] font-bold">🏡 Ranch Upgraded:</span> ${label} is now Level ${G.upgrades[key]}!`);
+                this.refreshUI();
+            },
+
+            /* ==========================================================
+               SAVE / LOAD / EXPORT
+               ========================================================== */
+            saveGame(silent = false) {
+                localStorage.setItem("discstone_64_save_v1", JSON.stringify(G));
+                if (!silent) this.log(`💾 Saved Ranch data to Memory Card.`);
+            },
+
+            loadGame() {
+                const raw = localStorage.getItem("discstone_64_save_v1");
+                if (raw) {
+                    G = Object.assign(createDefaultState(), JSON.parse(raw));
+                    this.log(`📂 Loaded Ranch data from Memory Card.`);
+                    this.refreshUI();
+                }
+            },
+
+            openSaveModal() {
+                document.getElementById("saveModal").classList.remove("hidden");
+            },
+
+            closeSaveModal() {
+                document.getElementById("saveModal").classList.add("hidden");
+            },
+
+            exportFullSave() {
+                const str = btoa(encodeURIComponent(JSON.stringify(G)));
+                const inp = document.getElementById("fullSaveInput");
+                inp.value = str;
+                inp.select();
+                document.execCommand("copy");
+                this.log(`📋 Copied full Ranch Save String to clipboard.`);
+            },
+
+            importFullSave() {
+                const val = document.getElementById("fullSaveInput").value.trim();
+                if (!val) return;
+                try {
+                    G = Object.assign(createDefaultState(), JSON.parse(decodeURIComponent(atob(val))));
+                    this.closeSaveModal();
+                    this.log(`📥 Restored full Ranch Save String!`);
+                    this.refreshUI();
+                } catch (e) {
+                    this.log(`<span class="text-rose-400">⚠️ Invalid Ranch Save String.</span>`);
+                }
+            },
+
+            resetRanch() {
+                localStorage.removeItem("discstone_64_save_v1");
+                G = createDefaultState();
+                this.closeSaveModal();
+                this.log(`🔄 Reset Ranch to Year 1000.`);
+                this.refreshUI();
+            },
+
+            /* ==========================================================
+               MASTER UI RENDERING
+               ========================================================== */
+            refreshUI() {
+                const m = this.getActive();
+                const yr = 1000 + Math.floor(G.totalWeeks / 48);
+                const mo = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Math.floor((G.totalWeeks % 48) / 4)];
+                const wk = (G.totalWeeks % 4) + 1;
+
+                // Top 18vh HUD
+                document.getElementById("uiRanchBadge").innerText = `${G.ranchName} (Lv.${G.ranchLevel || 1})`;
+                document.getElementById("uiCalendar").innerText = `Yr ${yr} • ${mo} • Wk ${wk}`;
+                document.getElementById("hudGold").innerText = `${G.gold.toLocaleString()}G`;
+                document.getElementById("hudActiveName").innerText = m.name;
+                document.getElementById("hudActiveBreed").innerText = `(${m.main}/${m.sub})`;
+                document.getElementById("hudRank").innerText = m.grade;
+                document.getElementById("hudFatigue").innerText = `${m.fatigue}/100`;
+                document.getElementById("hudLoyalty").innerText = m.loyalty;
+
+                const ageY = Math.floor((m.ageWeeks || 0) / 48);
+                const ageM = Math.floor(((m.ageWeeks || 0) % 48) / 4);
+                document.getElementById("hudAge").innerText = `${ageY}y ${ageM}m`;
+                document.getElementById("hudBarnCount").innerText = `${G.barn.length}/${this.getMaxBarnCap()}`;
+
+                const gBtn = document.getElementById("btnGodMode");
+                gBtn.innerText = G.godMode ? "⚡ GOD: ON" : "⚡ GOD: OFF";
+                document.getElementById("godDrawer").classList.toggle("hidden", !G.godMode);
+
+                // TAB 1: RANCH & TRAIN
+                document.getElementById("ranchNameInput").value = m.name;
+                document.getElementById("ranchGradeBadge").innerText = `CLASS ${m.grade}`;
+                document.getElementById("ranchBreedSubtitle").innerText = `${m.main} / ${m.sub} • Gen ${m.gen || 1}`;
+                const gRate = BREEDS[m.main]?.gutsRate || 11;
+                document.getElementById("ranchLifeStage").innerText = `Stage: Prime Growth • Guts Rate: ${gRate}/s`;
+
+                const statMeta = [
+                    { k: "lif", label: "LIF (Life)", color: "bg-amber-400" },
+                    { k: "pow", label: "POW (Power)", color: "bg-rose-500" },
+                    { k: "int", label: "INT (Intel)", color: "bg-emerald-400" },
+                    { k: "ski", label: "SKI (Skill)", color: "bg-purple-400" },
+                    { k: "spd", label: "SPD (Speed)", color: "bg-sky-400" },
+                    { k: "def", label: "DEF (Defense)", color: "bg-orange-400" }
+                ];
+                document.getElementById("ranchStatsGrid").innerHTML = statMeta.map(s => `
+                    <div class="ps1-panel p-2">
+                        <div class="flex justify-between text-[11px] mb-1">
+                            <span class="text-[#8ca3ba] font-bold">${s.label}</span>
+                            <b class="mono text-[#eef6ff]">${m[s.k]}/999</b>
+                        </div>
+                        <div class="w-full h-2 bg-black rounded-full overflow-hidden">
+                            <div class="h-full ${s.color}" style="width:${Math.min(100, (m[s.k] / 999) * 100)}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById("ranchTechCount").innerText = `${m.techs.length} Techs`;
+                document.getElementById("ranchTechPills").innerHTML = m.techs.map(tid => {
+                    const t = TECH_DB[tid];
+                    if (!t) return '';
+                    return `<span class="bg-[#182636] border border-[#38516e] px-2 py-0.5 rounded text-[#00e1ff] font-semibold">${t.name} (${t.range} • ${t.cost}G)</span>`;
+                }).join('');
+
+                // TAB 2: BARN ROSTER
+                this.renderBarnRoster();
+
+                // TAB 3: SHRINE PREVIEW
+                this.renderShrinePreview();
+
+                // TAB 4: FUSION LAB
+                this.renderFusionSelects();
+
+                // TAB 5: ARENA
+                this.renderArenaTab();
+
+                // TAB 6: SHOP
+                this.renderShopTab();
+            },
+
+            renderBarnRoster() {
+                const grid = document.getElementById("barnRosterGrid");
+                if (!grid) return;
+                grid.innerHTML = G.barn.map((mon, idx) => {
+                    const isAct = idx === G.activeIndex;
+                    const total = mon.lif + mon.pow + mon.int + mon.ski + mon.spd + mon.def;
+                    return `
+                        <div class="ps1-card p-3 flex flex-col justify-between gap-2 ${isAct ? 'border-2 border-[#f5b942]' : ''}">
+                            <div class="flex items-center gap-2.5">
+                                <canvas id="barnCanvas_${idx}" width="80" height="80" class="sprite-canvas w-16 h-16 shrink-0"></canvas>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-extrabold text-sm text-[#00e1ff] truncate">${mon.name}</span>
+                                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#f5b942] text-black">Rank ${mon.grade}</span>
+                                    </div>
+                                    <div class="text-[11px] text-[#8ca3ba]">${mon.main} / ${mon.sub} • Gen ${mon.gen || 1}</div>
+                                    <div class="text-[10px] text-[#22e58b] mono mt-0.5">Total Stats: ${total} • Techs: ${mon.techs.length}</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-6 gap-1 text-center mono text-[10px] bg-[#0b1017] p-1.5 rounded border border-[#26374b]">
+                                <div><div class="text-[#8ca3ba]">LIF</div><b>${mon.lif}</b></div>
+                                <div><div class="text-[#8ca3ba]">POW</div><b>${mon.pow}</b></div>
+                                <div><div class="text-[#8ca3ba]">INT</div><b>${mon.int}</b></div>
+                                <div><div class="text-[#8ca3ba]">SKI</div><b>${mon.ski}</b></div>
+                                <div><div class="text-[#8ca3ba]">SPD</div><b>${mon.spd}</b></div>
+                                <div><div class="text-[#8ca3ba]">DEF</div><b>${mon.def}</b></div>
+                            </div>
+                            <div class="flex gap-1.5 pt-1">
+                                <button onclick="MR64.selectBarnMonster(${idx})" class="btn-64 ${isAct ? 'btn-gold' : 'btn-cyan'} flex-1 py-1 text-[11px]">
+                                    ${isAct ? '★ Active' : 'Select Active'}
+                                </button>
+                                <button onclick="MR64.copyBarnCode64(${idx})" class="btn-64 px-2 py-1 text-[11px] text-[#00e1ff]" title="Copy Code64 Trade String">
+                                    🧬 Code64
+                                </button>
+                                <button onclick="MR64.retireMonster(${idx})" class="btn-64 px-2 py-1 text-[11px] text-rose-400" title="Retire Monster (+300G)">
+                                    👋
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                setTimeout(() => {
+                    G.barn.forEach((mon, idx) => {
+                        drawMonsterSprite(`barnCanvas_${idx}`, mon);
+                    });
+                }, 10);
+            },
+
+            renderShrinePreview() {
+                const box = document.getElementById("shrinePreviewInfo");
+                if (!box || !pendingShrineMonster) return;
+                const p = pendingShrineMonster;
+                const code = encodeMonsterCode64(p);
+                drawMonsterSprite("shrinePreviewCanvas", p);
+
+                box.innerHTML = `
+                    <div class="flex items-center justify-between font-bold text-sm">
+                        <span class="text-[#00e1ff]">${p.name} (${p.main} / ${p.sub})</span>
+                        <span class="text-xs text-[#f5b942]">Gen ${p.gen} • Class ${p.grade}</span>
+                    </div>
+                    <p class="text-[11px] text-[#8ca3ba] text-left">${BREEDS[p.main]?.desc || ''}</p>
+                    <div class="grid grid-cols-6 gap-1 text-center mono text-[11px] pt-1">
+                        <div class="bg-[#090e14] p-1 rounded">LIF<br><b class="text-amber-300">${p.lif}</b></div>
+                        <div class="bg-[#090e14] p-1 rounded">POW<br><b class="text-rose-300">${p.pow}</b></div>
+                        <div class="bg-[#090e14] p-1 rounded">INT<br><b class="text-emerald-300">${p.int}</b></div>
+                        <div class="bg-[#090e14] p-1 rounded">SKI<br><b class="text-purple-300">${p.ski}</b></div>
+                        <div class="bg-[#090e14] p-1 rounded">SPD<br><b class="text-sky-300">${p.spd}</b></div>
+                        <div class="bg-[#090e14] p-1 rounded">DEF<br><b class="text-orange-300">${p.def}</b></div>
+                    </div>
+                    <div class="pt-1 text-left">
+                        <div class="text-[10px] text-[#8ca3ba]">Shareable Code64 DNA String:</div>
+                        <input type="text" readonly value="${code}" onclick="this.select()" class="w-full bg-[#090e14] border border-[#2e4158] rounded px-2 py-1 text-[10px] mono text-[#00e1ff] outline-none mt-0.5">
+                    </div>
+                `;
+            },
+
+            renderFusionSelects() {
+                const selA = document.getElementById("fusionParentA");
+                const selB = document.getElementById("fusionParentB");
+                const selCat = document.getElementById("fusionCatalyst");
+                if (!selA || !selB || !selCat) return;
+
+                const prevA = selA.value || 0;
+                const prevB = selB.value || (G.barn.length > 1 ? 1 : 0);
+
+                const opts = G.barn.map((m, i) => `<option value="${i}">${m.name} (${m.main}/${m.sub} • Lv.${m.grade})</option>`).join('');
+                selA.innerHTML = opts;
+                selB.innerHTML = opts;
+                selA.value = prevA < G.barn.length ? prevA : 0;
+                selB.value = prevB < G.barn.length ? prevB : (G.barn.length > 1 ? 1 : 0);
+
+                const uniqueRelics = Array.from(new Set(G.relics));
+                selCat.innerHTML = `<option value="NONE">-- No Catalyst (Standard Combination) --</option>` +
+                    uniqueRelics.map(r => `<option value="${r}">✨ ${r} (Owned)</option>`).join('');
+
+                this.updateFusionPreview();
+            },
+
+            renderArenaTab() {
+                document.getElementById("tournamentLadderList").innerHTML = TOURNAMENTS.map((t, idx) => `
+                    <div class="ps1-panel p-2 flex items-center justify-between gap-2">
+                        <div>
+                            <div class="font-bold text-[#f5b942]">${t.name}</div>
+                            <div class="text-[10px] text-[#8ca3ba]">Boss: <b>${t.enemy.name}</b> (${t.enemy.main}/${t.enemy.sub}) • Purse: <b class="text-[#22e58b]">+${t.prize}G</b></div>
+                        </div>
+                        <button onclick="MR64.startTournamentMatch(${idx})" class="btn-64 btn-gold px-2.5 py-1 text-[11px] shrink-0">Enter</button>
+                    </div>
+                `).join('');
+
+                this.renderArenaHUD();
+            },
+
+            renderArenaHUD() {
+                const p = this.getActive();
+                if (!arenaState) {
+                    arenaState = {
+                        active: false,
+                        tourney: TOURNAMENTS[0],
+                        timeLeft: 60,
+                        range: 1,
+                        playerHp: p.lif * 2,
+                        playerMaxHp: p.lif * 2,
+                        playerGuts: 50,
+                        enemy: TOURNAMENTS[0].enemy,
+                        enemyHp: TOURNAMENTS[0].enemy.lif * 2,
+                        enemyMaxHp: TOURNAMENTS[0].enemy.lif * 2,
+                        enemyGuts: 50
+                    };
+                }
+
+                document.getElementById("arenaPlayerName").innerText = p.name;
+                document.getElementById("arenaPlayerHpText").innerText = `${arenaState.playerHp}/${arenaState.playerMaxHp}`;
+                document.getElementById("arenaPlayerHpBar").style.width = `${(arenaState.playerHp / arenaState.playerMaxHp) * 100}%`;
+                document.getElementById("arenaPlayerGuts").innerText = arenaState.playerGuts;
+
+                document.getElementById("arenaEnemyName").innerText = arenaState.enemy.name;
+                document.getElementById("arenaEnemyHpText").innerText = `${arenaState.enemyHp}/${arenaState.enemyMaxHp}`;
+                document.getElementById("arenaEnemyHpBar").style.width = `${(arenaState.enemyHp / arenaState.enemyMaxHp) * 100}%`;
+                document.getElementById("arenaEnemyGuts").innerText = arenaState.enemyGuts;
+
+                document.getElementById("arenaTimer").innerText = arenaState.timeLeft;
+                const rNames = ["👊 NEAR RANGE", "↔️ MID RANGE", "🏹 FAR RANGE"];
+                document.getElementById("arenaRangeBadge").innerText = rNames[arenaState.range || 1];
+
+                drawMonsterSprite("arenaPlayerCanvas", p, false, false);
+                drawMonsterSprite("arenaEnemyCanvas", arenaState.enemy, false, true);
+
+                // Tech buttons
+                document.getElementById("arenaTechButtons").innerHTML = p.techs.map(tid => {
+                    const t = TECH_DB[tid];
+                    if (!t) return '';
+                    return `
+                        <button onclick="MR64.useArenaTech('${tid}')" ${!arenaState.active ? 'disabled' : ''} class="btn-64 btn-cyan p-2 text-left">
+                            <div class="font-bold flex justify-between"><span>⚡ ${t.name}</span><span>-${t.cost}G</span></div>
+                            <div class="text-[10px] opacity-85">${t.range} • Pow ${t.pow} • Hit ${t.hit}%</div>
+                        </button>
+                    `;
+                }).join('');
+            },
+
+            renderShopTab() {
+                document.getElementById("marketItemsGrid").innerHTML = SHOP_ITEMS.map(item => `
+                    <div class="ps1-panel p-2.5 flex flex-col justify-between gap-2">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="font-bold text-[#00e1ff]">${item.name}</span>
+                                <span class="mono font-bold text-[#f5b942]">${G.godMode ? 'FREE' : `${item.cost}G`}</span>
+                            </div>
+                            <p class="text-[11px] text-[#8ca3ba] mt-1">${item.desc}</p>
+                        </div>
+                        <button onclick="MR64.buyShopItem('${item.id}')" class="btn-64 btn-gold py-1.5 text-xs">Purchase</button>
+                    </div>
+                `).join('');
+
+                const u = G.upgrades;
+                document.getElementById("ranchUpgradesList").innerHTML = `
+                    <div class="ps1-panel p-2 flex items-center justify-between">
+                        <div>
+                            <div class="font-bold text-[#eef6ff]">🏠 Expand Barn Stables (Lv.${u.barnLvl})</div>
+                            <div class="text-[10px] text-[#8ca3ba]">+4 Barn Cap & Improved Weekly Rest</div>
+                        </div>
+                        <button onclick="MR64.buyRanchUpgrade('barnLvl', ${u.barnLvl * 1000}, 'Barn Stables')" class="btn-64 btn-emerald px-2.5 py-1 text-[11px]">${u.barnLvl * 1000}G</button>
+                    </div>
+                    <div class="ps1-panel p-2 flex items-center justify-between">
+                        <div>
+                            <div class="font-bold text-[#eef6ff]">🏆 IMA Sponsor Contract (Lv.${u.sponsorLvl})</div>
+                            <div class="text-[10px] text-[#8ca3ba]">Passive +${u.sponsorLvl * 75}G every single week!</div>
+                        </div>
+                        <button onclick="MR64.buyRanchUpgrade('sponsorLvl', ${u.sponsorLvl * 1200}, 'IMA Sponsor')" class="btn-64 btn-cyan px-2.5 py-1 text-[11px]">${u.sponsorLvl * 1200}G</button>
+                    </div>
+                `;
+
+                document.getElementById("ownedRelicsList").innerHTML = G.relics.length === 0
+                    ? `<div>No Fusion Relics currently in inventory.</div>`
+                    : G.relics.map(r => `<div class="bg-[#090e14] border border-[#2e4158] px-2.5 py-1 rounded text-[#f5b942] font-bold">✨ ${r}</div>`).join('');
+            }
+        };
+
+        window.onload = function () {
+            MR64.init();
+        };
+    </script>
+</body>
+</html>
